@@ -4,7 +4,6 @@
 #include <Adafruit_GPS.h>
 
 Adafruit_GPS GPS(&Serial1);
-#define GPSECHO false
 int led = 7;
 
 void setup()  
