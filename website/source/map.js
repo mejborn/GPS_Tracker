@@ -3,7 +3,8 @@
  */
 
 var allAreas = [];
-var vectors = [];
+var newVectors = [];
+var oldVectors = [];
 var intersections = [];
 var selectedShape;
 var color = '#1E90FF';
@@ -121,7 +122,7 @@ function saveVectors()
 
     for (var i = 0; i < allAreas[number].overlay.getPath().length; i++) {
         latLngPoint = [allAreas[number].overlay.getPath().getAt(i).D,
-            -allAreas[number].overlay.getPath().getAt(i).k];
+                       allAreas[number].overlay.getPath().getAt(i).k];
         var coordinates = projection.fromLatLngToPoint(latLngPoint);
         points.push(coordinates);
     }
@@ -133,8 +134,9 @@ function saveVectors()
             var x2 = points[0].x;
             var y2 = points[0].y;
             var a = (y2 - y1)/(x2 - x1);
-            var b = (-a*x1) + y1;
-            vectors.push(vector[a,b,x1,x2,y1,y2]);
+            var b = ((a*x1) + y1);
+            vector = [a,b,x1,x2,y1,y2];
+            newVectors.push(vector);
             console.log("y = " + a + "* x + " + b);
         } else {
             var x1 = points[i].x;
@@ -142,27 +144,22 @@ function saveVectors()
             var x2 = points[i+1].x;
             var y2 = points[i+1].y;
             var a = (y2 - y1)/(x2 - x1);
-            var b = (-a*x1) + y1;
-            vectors.push(vector[a,b,x1,x2,y1,y2]);
+            var b = ((a*x1) + y1);
+            vector = [a,b,x1,x2,y1,y2];
+            newVectors.push(vector);
             console.log("y = " + a + "* x + " + b);
         }
     }
-    /*for (var j = 0; j < allAreas.length; j++) {
-     for (var i = 0; i < allAreas[j].overlay.getPath().length; i++) {
-     latLngPoint = [allAreas[j].overlay.getPath().getAt(i).D,
-     allAreas[j].overlay.getPath().getAt(i).k];
-     var coordinates = projection.fromLatLngToPoint(latLngPoint);
-     vectors[i] = coordinates;
-     console.log("(" + vectors[i].x + "," + vectors[i].y + ")");
-     }
-     }*/
+
+    calculateIntersections();
 }
 
 function calculateIntersections() {
-    var left = vectors.length - 1;
+    var left = 1;
     var projection = new MercatorProjection();
-    for (var i = 0; i < vectors.length; i++) {
-        for(var j = 0; j < left; j++) {
+    var intersectionss = 0;
+    for (var i = 0; i < newVectors.length; i++) {
+        for(var j = left; j < newVectors.length; j++) {
             /* y = a1 * x + b1
              y = a2 * x + b2
 
@@ -171,15 +168,44 @@ function calculateIntersections() {
              x(a1 - a2) = b2 - b1
              x = b2 - b1 / a1 - a2
 
+             y = a2 * x + b2
+             x = (y-b2)/a2
+
+             y = a1*((y-b2)/a2)+b1
+
              */
-            var x = (vectors[i+1][1] - vectors[i][1])/(vectors[i][0] - vectors[i+1][0]);
-            var y = vectors[i][0] * x + vectors[i][1];
-            if((x >= vectors[i][2] && x <= vectors[i][3]) && (x >= vectors[i+1][2] && x <= vectors[i+1][3])) {
-                intersections.push(projection.fromPointToLatLng(point[x,y]));
+            var x = (newVectors[j][1] - newVectors[i][1])/(newVectors[i][0] - newVectors[j][0]);
+            var y = newVectors[j][0] * x + newVectors[j][1];
+
+                console.log("a = " + newVectors[j][0] + " og b = " + newVectors[j][1]);
+                console.log("x = " + x);
+                console.log(newVectors[i][2] + " <= " + x + " <= " + newVectors[i][3]);
+                console.log(newVectors[i][3] + " <= " + x + " <= " + newVectors[i][2]);
+                console.log(newVectors[j][2] + " <= " + x + " <= " + newVectors[j][3]);
+                console.log(newVectors[j][3] + " <= " + x + " <= " + newVectors[j][2]);
+                console.log("y = " + y);
+                console.log(newVectors[i][4] + " <= " + y + " <= " + newVectors[i][5]);
+                console.log(newVectors[i][5] + " <= " + y + " <= " + newVectors[i][4]);
+                console.log(newVectors[j][4] + " <= " + y + " <= " + newVectors[j][5]);
+                console.log(newVectors[j][5] + " <= " + y + " <= " + newVectors[j][4]);
+
+            /*console.log((x >= newVectors[i][2] && x <= newVectors[i][3]) || (x <= newVectors[i][2] && x >= newVectors[i][3]));
+            console.log((x >= newVectors[j][2] && x <= newVectors[j][3]) || (x <= newVectors[j][2] && x >= newVectors[j][3]));
+            console.log((y >= newVectors[i][4] && y <= newVectors[i][5]) || (y <= newVectors[i][4] && y >= newVectors[i][5]));
+            console.log((y >= newVectors[j][4] && y <= newVectors[j][5]) || (y <= newVectors[j][4] && y >= newVectors[j][5]));*/
+            if((((x >= newVectors[i][2] && x <= newVectors[i][3]) || (x <= newVectors[i][2] && x >= newVectors[i][3])) &&
+                ((x >= newVectors[j][2] && x <= newVectors[j][3]) || (x <= newVectors[j][2] && x >= newVectors[j][3]))) &&
+               (((y >= newVectors[i][4] && y <= newVectors[i][5]) || (y <= newVectors[i][4] && y >= newVectors[i][5])) &&
+                ((y >= newVectors[j][4] && y <= newVectors[j][5]) || (y <= newVectors[j][4] && y >= newVectors[j][5])))) {
+                //intersections.push(projection.fromPointToLatLng(point[x,y]));
+                intersectionss = intersectionss + 1;
             }
         }
-        left = left - 1;
+        left++;
     }
+    newVectors = [];
+    console.log("Intersections: " + intersectionss);
+    intersectionss = 0;
 }
 
 
