@@ -13,11 +13,10 @@
         }
     </style>
 
-    <p id="demo"></p>
-
     <script type="text/javascript"
             src="map.js">
     </script>
+
 
 </head>
 <body>
@@ -26,6 +25,17 @@
 <div id="buttons">
     <button id="deleteShape">Slet valgte område</button>
     <button id="deleteAllShapes">Slet alle områder</button>
+    <button id="submit">Gem områder</button>
+    <script type="text/javascript">
+        function exportFile() {
+            var myFile = "Col1,Col2,Col3\nval1,val2,val3";
+
+            window.open('data:text/csv;charset=utf-8,' + escape(myFile));
+        }
+
+        var button = document.getElementById('submit');
+        button.addEventListener('click', exportFile);
+    </script>
 </div>
 <h3 style="text-align: center">Koordinater:</h3>
 <p id="coords", style="text-align: center">Ingen områder endnu.</p>
