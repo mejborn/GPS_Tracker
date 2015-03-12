@@ -2,6 +2,10 @@
  * Created by BusterK on 19-01-2015.
  */
 
+function initialize() {
+    getLocation();
+}
+
 var allAreas = [];
 var newVectors = [];
 var oldVectors = [];
@@ -156,7 +160,6 @@ function saveVectors()
 
 function calculateIntersections() {
     var left = 1;
-    var projection = new MercatorProjection();
     var intersectionss = 0;
     for (var i = 0; i < newVectors.length; i++) {
         for(var j = left; j < newVectors.length; j++) {
@@ -210,9 +213,7 @@ function calculateIntersections() {
 
 
 
-function initialize() {
 
-}
 
 function showMap(position){
 
@@ -316,20 +317,6 @@ function showDefaultMap(position){
     google.maps.event.addDomListener(document.getElementById('deleteAllShapes'), 'click', deleteAllShapes);
 }
 
-function loadGoogleMaps() {
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src =
-        'https://maps.googleapis.com/maps/api/js?'
-        + 'AIzaSyCiqfn23Gqe_IjUaPwXJETVOUZlblXnaLk' +
-        '&'
-        + 'v=3.exp' +
-        '&'
-        + 'libraries=drawing' +
-        '&'
-        + 'callback=initialize';
-    document.body.appendChild(script);
-}
 
 function getLocation() {
     if (navigator.geolocation) {
@@ -339,5 +326,4 @@ function getLocation() {
     }
 }
 
-window.onload = loadGoogleMaps();
-window.onload = getLocation();
+google.maps.event.addDomListener(window, 'load', initialize);

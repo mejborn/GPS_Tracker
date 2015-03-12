@@ -12,12 +12,6 @@
             text-align: center;
         }
     </style>
-
-    <script type="text/javascript"
-            src="map.js">
-    </script>
-
-
 </head>
 <body>
 <h1 style="text-align: center">Arduino Projekt</h1>
@@ -26,6 +20,10 @@
     <button id="deleteShape">Slet valgte område</button>
     <button id="deleteAllShapes">Slet alle områder</button>
     <button id="submit">Gem områder</button>
+    <script src="https://maps.googleapis.com/maps/api/js?AIzaSyCiqfn23Gqe_IjUaPwXJETVOUZlblXnaLk&v=3.exp&libraries=drawing"></script>
+
+    <script src="map.js"></script>
+
     <script type="text/javascript">
         function exportFile() {
             var myFile = "Col1,Col2,Col3\nval1,val2,val3";
