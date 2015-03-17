@@ -6,13 +6,14 @@ function initialize() {
     getLocation();
 }
 
+
+var gotLocation = false;
 var allAreas = [];
 var newVectors = [];
-var oldVectors = [];
-var intersections = [];
+var intersectionsArray = [];
 var selectedShape;
-var color = '#1E90FF';
 var TILE_SIZE = 256;
+var projection;
 
 function printCoordinates(overlay) {
     if(overlay == null && (allAreas.length == 0)) {
@@ -22,7 +23,7 @@ function printCoordinates(overlay) {
     } else {
         var coordinates = "";
         for (var i = 0; i < overlay.getPath().length; i++) {
-            coordinates += overlay.getPath().getAt(i) + "<br>";
+            coordinates += "( Lat , Lng ) ( y , x ) = " + overlay.getPath().getAt(i) + "<br>";
         }
         document.getElementById('coords').innerHTML = coordinates;
     }
@@ -73,7 +74,7 @@ function degreesToRadians(deg) {
 }
 
 function radiansToDegrees(rad) {
-    return rad / (Math.Pi / 180);
+    return rad / (Math.PI / 180);
 }
 
 function MercatorProjection() {
@@ -118,7 +119,6 @@ MercatorProjection.prototype.fromPointToLatLng = function(point) {
  */
 function saveVectors()
 {
-    var projection = new MercatorProjection();
     var latLngPoint = [2];
     var number = allAreas.length - 1;
     var points = [];
@@ -138,20 +138,18 @@ function saveVectors()
             var x2 = points[0].x;
             var y2 = points[0].y;
             var a = (y2 - y1)/(x2 - x1);
-            var b = ((a*x1) + y1);
+            var b = y1 - (a*x1);
             vector = [a,b,x1,x2,y1,y2];
             newVectors.push(vector);
-            console.log("y = " + a + "* x + " + b);
         } else {
             var x1 = points[i].x;
             var y1 = points[i].y;
             var x2 = points[i+1].x;
             var y2 = points[i+1].y;
             var a = (y2 - y1)/(x2 - x1);
-            var b = ((a*x1) + y1);
+            var b = y1 - (a*x1);
             vector = [a,b,x1,x2,y1,y2];
             newVectors.push(vector);
-            console.log("y = " + a + "* x + " + b);
         }
     }
 
@@ -164,12 +162,12 @@ function calculateIntersections() {
     for (var i = 0; i < newVectors.length; i++) {
         for(var j = left; j < newVectors.length; j++) {
             /* y = a1 * x + b1
-             y = a2 * x + b2
+               y = a2 * x + b2
 
-             a1 * x + b1 = a2 * x + b2
-             a1 * x - a2 * x = b2 - b1
-             x(a1 - a2) = b2 - b1
-             x = b2 - b1 / a1 - a2
+               a1 * x + b1 = a2 * x + b2
+               a1 * x - a2 * x = b2 - b1
+               x(a1 - a2) = b2 - b1
+               x = b2 - b1 / a1 - a2
 
              y = a2 * x + b2
              x = (y-b2)/a2
@@ -177,31 +175,22 @@ function calculateIntersections() {
              y = a1*((y-b2)/a2)+b1
 
              */
-            var x = (newVectors[j][1] - newVectors[i][1])/(newVectors[i][0] - newVectors[j][0]);
-            var y = newVectors[j][0] * x + newVectors[j][1];
+            var a1 = newVectors[i][0];
+            var a2 = newVectors[j][0];
+            var b1 = newVectors[i][1];
+            var b2 = newVectors[j][1];
 
-                console.log("a = " + newVectors[j][0] + " og b = " + newVectors[j][1]);
-                console.log("x = " + x);
-                console.log(newVectors[i][2] + " <= " + x + " <= " + newVectors[i][3]);
-                console.log(newVectors[i][3] + " <= " + x + " <= " + newVectors[i][2]);
-                console.log(newVectors[j][2] + " <= " + x + " <= " + newVectors[j][3]);
-                console.log(newVectors[j][3] + " <= " + x + " <= " + newVectors[j][2]);
-                console.log("y = " + y);
-                console.log(newVectors[i][4] + " <= " + y + " <= " + newVectors[i][5]);
-                console.log(newVectors[i][5] + " <= " + y + " <= " + newVectors[i][4]);
-                console.log(newVectors[j][4] + " <= " + y + " <= " + newVectors[j][5]);
-                console.log(newVectors[j][5] + " <= " + y + " <= " + newVectors[j][4]);
+            var x = (b2 - b1)/(a1 - a2);
+            var y = (a1 * x) + (b1);
 
-            /*console.log((x >= newVectors[i][2] && x <= newVectors[i][3]) || (x <= newVectors[i][2] && x >= newVectors[i][3]));
-            console.log((x >= newVectors[j][2] && x <= newVectors[j][3]) || (x <= newVectors[j][2] && x >= newVectors[j][3]));
-            console.log((y >= newVectors[i][4] && y <= newVectors[i][5]) || (y <= newVectors[i][4] && y >= newVectors[i][5]));
-            console.log((y >= newVectors[j][4] && y <= newVectors[j][5]) || (y <= newVectors[j][4] && y >= newVectors[j][5]));*/
-            if((((x >= newVectors[i][2] && x <= newVectors[i][3]) || (x <= newVectors[i][2] && x >= newVectors[i][3])) &&
-                ((x >= newVectors[j][2] && x <= newVectors[j][3]) || (x <= newVectors[j][2] && x >= newVectors[j][3]))) &&
-               (((y >= newVectors[i][4] && y <= newVectors[i][5]) || (y <= newVectors[i][4] && y >= newVectors[i][5])) &&
-                ((y >= newVectors[j][4] && y <= newVectors[j][5]) || (y <= newVectors[j][4] && y >= newVectors[j][5])))) {
-                //intersections.push(projection.fromPointToLatLng(point[x,y]));
+            if((((x > newVectors[i][2] && x < newVectors[i][3]) || (x < newVectors[i][2] && x > newVectors[i][3])) &&
+                ((x > newVectors[j][2] && x < newVectors[j][3]) || (x < newVectors[j][2] && x > newVectors[j][3]))) &&
+               (((y > newVectors[i][4] && y < newVectors[i][5]) || (y < newVectors[i][4] && y > newVectors[i][5])) &&
+                ((y > newVectors[j][4] && y < newVectors[j][5]) || (y < newVectors[j][4] && y > newVectors[j][5])))) {
+                intersectionsArray.push(projection.fromPointToLatLng([x,y]));
+                console.log(intersectionsArray[intersectionss])
                 intersectionss = intersectionss + 1;
+
             }
         }
         left++;
@@ -217,12 +206,20 @@ function calculateIntersections() {
 
 function showMap(position){
 
-    var projection = new MercatorProjection();
+    projection = new MercatorProjection();
 
-    var mapOptions = {
-        zoom: 15,
-        center: new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
-    };
+    var mapOptions;
+    if(gotLocation) {
+        mapOptions = {
+            zoom: 15,
+            center: new google.maps.LatLng(position.coords.latitude, position.coords.longitude)
+        };
+    } else {
+        mapOptions = {
+            zoom: 6,
+            center: new google.maps.LatLng(55.695003, 10.629682)
+        };
+    }
 
     var map = new google.maps.Map(document.getElementById('map-canvas'),
         mapOptions);
@@ -268,59 +265,10 @@ function showMap(position){
     google.maps.event.addDomListener(document.getElementById('deleteAllShapes'), 'click', deleteAllShapes);
 }
 
-function showDefaultMap(position){
-
-    var mapOptions = {
-        zoom: 6,
-        center: new google.maps.LatLng(55.695003, 10.629682)
-    };
-
-    var map = new google.maps.Map(document.getElementById('map-canvas'),
-        mapOptions);
-
-    var drawingManager = new google.maps.drawing.DrawingManager({
-        drawingMode: google.maps.drawing.OverlayType.POLYGON,
-        drawingControl: true,
-        drawingControlOptions: {
-            position: google.maps.ControlPosition.TOP_CENTER,
-            drawingModes: [
-                google.maps.drawing.OverlayType.POLYGON
-            ]
-        },
-        markerOptions: {
-            icon: 'images/beachflag.png'
-        },
-        polygonOptions: {
-            clickable: true,
-            editable: true,
-            draggable: true
-        }
-    });
-    drawingManager.setMap(map);
-    google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
-        printCoordinates(event.overlay);
-
-        allAreas.push(event);
-
-        drawingManager.setDrawingMode(null);
-
-        var newShape = event.overlay;
-        newShape.type = event.type;
-        google.maps.event.addListener(newShape, 'click', function (e) {
-            setSelection(newShape);
-            printCoordinates(newShape);
-        })
-        setSelection(newShape);
-    });
-
-    google.maps.event.addDomListener(document.getElementById('deleteShape'), 'click', deleteSelectShape);
-    google.maps.event.addDomListener(document.getElementById('deleteAllShapes'), 'click', deleteAllShapes);
-}
-
-
 function getLocation() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showMap, showDefaultMap);
+        gotLocation = true;
+        navigator.geolocation.getCurrentPosition(showMap);
     } else {
         x.innerHTML = "Geolocation is not supported by this browser.";
     }
