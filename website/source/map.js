@@ -188,9 +188,7 @@ function calculateIntersections() {
                (((y > newVectors[i][4] && y < newVectors[i][5]) || (y < newVectors[i][4] && y > newVectors[i][5])) &&
                 ((y > newVectors[j][4] && y < newVectors[j][5]) || (y < newVectors[j][4] && y > newVectors[j][5])))) {
                 intersectionsArray.push(projection.fromPointToLatLng([x,y]));
-                console.log(intersectionsArray[intersectionss])
                 intersectionss = intersectionss + 1;
-
             }
         }
         left++;
@@ -249,6 +247,14 @@ function showMap(position){
         printCoordinates(event.overlay);
         allAreas.push(event);
         saveVectors();
+
+        for(var i = 0; i < intersectionsArray.length; i++) {
+            var marker = new google.maps.Marker({
+                position: intersectionsArray[i],
+                map: map
+            });
+            console.log("(Lat, Lng) : (" + intersectionsArray[i].k + ", " + intersectionsArray[i].D + ")");
+        }
 
         drawingManager.setDrawingMode(null);
 
