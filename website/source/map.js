@@ -6,24 +6,37 @@ function initialize() {
     getLocation();
 }
 
-
+/*
+    Booleans
+ */
 var gotLocation = false;
-var allAreas = [];
+var firstDrawing = true;
+
+/*
+    Arrays
+ */
+var allPoints = [];
 var newVectors = [];
+var oldVectors = [];
 var intersectionsArray = [];
+
+/*
+    Variables
+ */
 var selectedShape;
 var TILE_SIZE = 256;
 var projection;
+var masterPolygon;
 
-function printCoordinates(overlay) {
-    if(overlay == null && (allAreas.length == 0)) {
+var tempOverlay;
+
+function printCoordinates() {
+    if(masterPolygon === null) {
         document.getElementById('coords').innerHTML = "Ingen områder endnu.";
-    } else if(overlay === null) {
-        document.getElementById('coords').innerHTML = "Intet område er valgt";
     } else {
         var coordinates = "";
-        for (var i = 0; i < overlay.getPath().length; i++) {
-            coordinates += "( Lat , Lng ) ( y , x ) = " + overlay.getPath().getAt(i) + "<br>";
+        for (var i = 0; i < masterPolygon.getPath().length; i++) {
+            coordinates += "( Lat , Lng ) ( y , x ) = " + masterPolygon.getPath().getAt(i) + "<br>";
         }
         document.getElementById('coords').innerHTML = coordinates;
     }
@@ -44,23 +57,14 @@ function setSelection(shape) {
 
 function deleteSelectShape() {
     if(selectedShape) {
-        if (allAreas.length <= 1) {
-            selectedShape.setMap(null);
-            allAreas = []
-            printCoordinates(null);
-        } else {
-            selectedShape.setMap(null);
-            printCoordinates(null);
-        }
+        selectedShape.setMap(null);
+        printCoordinates();
+        firstDrawing = true;
+    } else {
+        selectedShape.setMap(null);
+        printCoordinates(null);
     }
-}
 
-function deleteAllShapes() {
-    for(var i = 0; i < allAreas.length; i++) {
-        allAreas[i].overlay.setMap(null);
-    }
-    allAreas = [];
-    printCoordinates(null);
 }
 
 function bound(value, opt_min, opt_max) {
@@ -117,16 +121,15 @@ MercatorProjection.prototype.fromPointToLatLng = function(point) {
 
  array.push funktionen sætter element ind sidst i arrayet - YES BABY!
  */
-function saveVectors()
+function saveVectors(tempPolygon)
 {
     var latLngPoint = [2];
-    var number = allAreas.length - 1;
     var points = [];
     var vector = [6];
 
-    for (var i = 0; i < allAreas[number].overlay.getPath().length; i++) {
-        latLngPoint = [allAreas[number].overlay.getPath().getAt(i).D,
-                       allAreas[number].overlay.getPath().getAt(i).k];
+    for (var i = 0; i < tempPolygon.getPath().length; i++) {
+        latLngPoint = [tempPolygon.getPath().getAt(i).D,
+                       tempPolygon.getPath().getAt(i).k];
         var coordinates = projection.fromLatLngToPoint(latLngPoint);
         points.push(coordinates);
     }
@@ -153,21 +156,31 @@ function saveVectors()
         }
     }
 
-    calculateIntersections();
+    if(firstDrawing) {
+        oldVectors = newVectors;
+        newVectors = [];
+    }
 }
 
 function calculateIntersections() {
-    var left = 1;
-    var intersectionss = 0;
-    for (var i = 0; i < newVectors.length; i++) {
-        for(var j = left; j < newVectors.length; j++) {
-            /* y = a1 * x + b1
-               y = a2 * x + b2
 
-               a1 * x + b1 = a2 * x + b2
-               a1 * x - a2 * x = b2 - b1
-               x(a1 - a2) = b2 - b1
-               x = b2 - b1 / a1 - a2
+    var tempPoints = [];
+    var newPoints = [];
+    var x, y, a1, a2, b1, b2;
+    var foundIntersection = false;
+    var firstVectorIntersection = false;
+    var currentNewVector = 0;
+
+    for (var i = 0; i < oldVectors.length; i++) {
+        firstVectorIntersection = false;
+        for (var j = 0; j < newVectors.length; j++) {
+            /* y = a1 * x + b1
+             y = a2 * x + b2
+
+             a1 * x + b1 = a2 * x + b2
+             a1 * x - a2 * x = b2 - b1
+             x(a1 - a2) = b2 - b1
+             x = b2 - b1 / a1 - a2
 
              y = a2 * x + b2
              x = (y-b2)/a2
@@ -175,29 +188,90 @@ function calculateIntersections() {
              y = a1*((y-b2)/a2)+b1
 
              */
-            var a1 = newVectors[i][0];
-            var a2 = newVectors[j][0];
-            var b1 = newVectors[i][1];
-            var b2 = newVectors[j][1];
 
-            var x = (b2 - b1)/(a1 - a2);
-            var y = (a1 * x) + (b1);
+            a2 = newVectors[j][0];
+            a1 = oldVectors[i][0];
+            b2 = newVectors[j][1];
+            b1 = oldVectors[i][1];
 
-            if((((x > newVectors[i][2] && x < newVectors[i][3]) || (x < newVectors[i][2] && x > newVectors[i][3])) &&
-                ((x > newVectors[j][2] && x < newVectors[j][3]) || (x < newVectors[j][2] && x > newVectors[j][3]))) &&
-               (((y > newVectors[i][4] && y < newVectors[i][5]) || (y < newVectors[i][4] && y > newVectors[i][5])) &&
-                ((y > newVectors[j][4] && y < newVectors[j][5]) || (y < newVectors[j][4] && y > newVectors[j][5])))) {
-                intersectionsArray.push(projection.fromPointToLatLng([x,y]));
-                intersectionss = intersectionss + 1;
+            x = (b2 - b1) / (a1 - a2);
+            y = (a1 * x) + (b1);
+
+            /*
+             vector = [a,b,x1,x2,y1,y2];
+             */
+
+            if ((((x > newVectors[j][2] && x < newVectors[j][3]) || (x < newVectors[j][2] && x > newVectors[j][3])) &&
+                ((x > oldVectors[i][2] && x < oldVectors[i][3]) || (x < oldVectors[i][2] && x > oldVectors[i][3]))) &&
+                (((y > newVectors[j][4] && y < newVectors[j][5]) || (y < newVectors[j][4] && y > newVectors[j][5])) &&
+                ((y > oldVectors[i][4] && y < oldVectors[i][5]) || (y < oldVectors[i][4] && y > oldVectors[i][5])))) {
+                intersectionsArray.push(projection.fromPointToLatLng([x, y]));
+                tempPoints.push([x, y]);
+                foundIntersection = true;
+
+                if(!firstVectorIntersection) {
+                    currentNewVector = j;
+                    firstVectorIntersection = true;
+                }
             }
         }
-        left++;
+
+        var difference = 0;
+        var choice = 0;
+        for(var k = 0; k < tempPoints.length; k++) {
+            if(k == 0) {
+                difference = x - tempPoints[k][0];
+            } else {
+                var distance = x - tempPoints[k][0];
+            }
+            if(distance < difference) {
+                difference = distance;
+                choice = k;
+            }
+        }
+
+        if(foundIntersection) {
+            newPoints.push(projection.fromPointToLatLng([oldVectors[i][2],oldVectors[i][4]]));
+            newPoints.push(projection.fromPointToLatLng([tempPoints[choice][0], tempPoints[choice][1]]));
+            if(google.maps.geometry.poly.containsLocation(projection.fromPointToLatLng([newVectors[currentNewVector][2],newVectors[currentNewVector][4]]), masterPolygon)) {
+                newPoints.push(projection.fromPointToLatLng([newVectors[currentNewVector][3],newVectors[currentNewVector][5]]));
+            } else {
+                newPoints.push(projection.fromPointToLatLng([newVectors[currentNewVector][2],newVectors[currentNewVector][4]]));
+            }
+
+            /*
+            var l = currentNewVector + 1;
+            while(l < newVectors.length && !google.maps.geometry.poly.containsLocation(projection.fromPointToLatLng([newVectors[l][3],newVectors[l][5]]),masterPolygon)) {
+                newPoints.push(projection.fromPointToLatLng([newVectors[l][3],newVectors[l][5]]));
+                l++;
+            }
+            */
+            newPoints.push(projection.fromPointToLatLng([newVectors[2][2],newVectors[2][4]]));
+            newPoints.push(projection.fromPointToLatLng([tempPoints[choice+1][0], tempPoints[choice+1][1]]));
+
+            foundIntersection = false;
+        } else {
+            newPoints.push(projection.fromPointToLatLng([oldVectors[i][2],oldVectors[i][4]]));
+        }
     }
-    newVectors = [];
-    console.log("Intersections: " + intersectionss);
-    intersectionss = 0;
+
+    allPoints = newPoints;
+
+    masterPolygon.setMap(null);
 }
 
+function dotInsidePolygon(overlay) {
+    for(var i = 0; i < overlay.getPath().length; i++) {
+        if(google.maps.geometry.poly.containsLocation(overlay.getPath().getAt(i), masterPolygon)) {
+
+        }
+    }
+
+}
+
+function drawNewPolygon() {
+
+    }
 
 
 
@@ -244,27 +318,89 @@ function showMap(position){
     });
     drawingManager.setMap(map);
     google.maps.event.addListener(drawingManager, "overlaycomplete", function(event) {
-        printCoordinates(event.overlay);
-        allAreas.push(event);
-        saveVectors();
+        if(firstDrawing) {
 
-        for(var i = 0; i < intersectionsArray.length; i++) {
-            var marker = new google.maps.Marker({
-                position: intersectionsArray[i],
+            /*
+                Sætte masterPolygon til det overordnede polygon.
+             */
+            masterPolygon = event.overlay;
+            /*
+                Print koordinater til browser vinduet.
+             */
+            printCoordinates();
+
+            /*
+                Reset drawing manager, så der skal klikkes igen for at tegne ny tegning.
+             */
+            drawingManager.setDrawingMode(null);
+
+            /*
+                Tilføj listener til hvert overlay, så at det vælges hvis man trykker på det.
+             */
+            var newShape = event.overlay;
+            newShape.type = event.type;
+            google.maps.event.addListener(newShape, 'click', function (e) {
+                setSelection(newShape);
+                printCoordinates(newShape);
+            })
+
+            /*
+                Når overlay er tegnet, er det valgt fra starten af.
+             */
+            setSelection(newShape);
+
+            /*
+                Gem alle vektorer fra tegnet overlay.
+             */
+            saveVectors(event.overlay);
+
+            firstDrawing = false;
+
+        } else {
+            /*
+                Gem alle vektorer fra tegnet overlay.
+             */
+            saveVectors(event.overlay);
+
+            /*
+                Beregn skæringer imellem vektorerne.
+             */
+            calculateIntersections();
+
+            /*
+                Tegn ny polygon
+             */
+
+            event.overlay.setMap(null);
+
+            new google.maps.Polygon({
+                paths: allPoints,
+                clickable: true,
+                editable: true,
+                draggable: true,
+                strokeWeight: 0,
+                fillOpacity: 0.45,
                 map: map
             });
-            console.log("(Lat, Lng) : (" + intersectionsArray[i].k + ", " + intersectionsArray[i].D + ")");
+
+            /*
+                Print koordinater til browser vinduet.
+             */
+                printCoordinates();
+
+            /*
+                Reset drawing manager, så der skal klikkes igen for at tegne ny tegning.
+             */
+            drawingManager.setDrawingMode(null);
+
+            for(var i = 0; i < intersectionsArray.length; i++) {
+                var marker = new google.maps.Marker({
+                    position: intersectionsArray[i],
+                    map: map
+                });
+                console.log("(Lat, Lng) : (" + intersectionsArray[i].k + ", " + intersectionsArray[i].D + ")");
+            }
         }
-
-        drawingManager.setDrawingMode(null);
-
-        var newShape = event.overlay;
-        newShape.type = event.type;
-        google.maps.event.addListener(newShape, 'click', function (e) {
-            setSelection(newShape);
-            printCoordinates(newShape);
-        })
-        setSelection(newShape);
     });
 
     google.maps.event.addDomListener(document.getElementById('deleteShape'), 'click', deleteSelectShape);
@@ -274,7 +410,7 @@ function showMap(position){
 function getLocation() {
     if (navigator.geolocation) {
         gotLocation = true;
-        navigator.geolocation.getCurrentPosition(showMap);
+        navigator.geolocation.getCurrentPosition(showMap, showMap);
     } else {
         x.innerHTML = "Geolocation is not supported by this browser.";
     }
