@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <string name="app_name">gps-tracker</string>
-    <string name="title_activity_track_position">Track GPS watch position</string>
-
-</resources>
