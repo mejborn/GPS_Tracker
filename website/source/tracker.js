@@ -3,13 +3,13 @@ function initialize() {
 }
 
 /*
-    Booleans
+ Booleans
  */
 var gotLocation = false;
 var firstDrawing = true;
 
 /*
-    Arrays
+ Arrays
  */
 var allPoints = [];
 var newVectors = [];
@@ -17,7 +17,7 @@ var oldVectors = [];
 var intersectionsArray = [];
 
 /*
-    Variables
+ Variables
  */
 var selectedShape;
 var TILE_SIZE = 256;
@@ -125,7 +125,7 @@ function saveVectors(tempPolygon)
 
     for (var i = 0; i < tempPolygon.getPath().length; i++) {
         latLngPoint = [tempPolygon.getPath().getAt(i).D,
-                       tempPolygon.getPath().getAt(i).k];
+            tempPolygon.getPath().getAt(i).k];
         var coordinates = projection.fromLatLngToPoint(latLngPoint);
         points.push(coordinates);
     }
@@ -236,12 +236,12 @@ function calculateIntersections() {
             }
 
             /*
-            var l = currentNewVector + 1;
-            while(l < newVectors.length && !google.maps.geometry.poly.containsLocation(projection.fromPointToLatLng([newVectors[l][3],newVectors[l][5]]),masterPolygon)) {
-                newPoints.push(projection.fromPointToLatLng([newVectors[l][3],newVectors[l][5]]));
-                l++;
-            }
-            */
+             var l = currentNewVector + 1;
+             while(l < newVectors.length && !google.maps.geometry.poly.containsLocation(projection.fromPointToLatLng([newVectors[l][3],newVectors[l][5]]),masterPolygon)) {
+             newPoints.push(projection.fromPointToLatLng([newVectors[l][3],newVectors[l][5]]));
+             l++;
+             }
+             */
             newPoints.push(projection.fromPointToLatLng([newVectors[2][2],newVectors[2][4]]));
             newPoints.push(projection.fromPointToLatLng([tempPoints[choice+1][0], tempPoints[choice+1][1]]));
 
@@ -267,7 +267,7 @@ function dotInsidePolygon(overlay) {
 
 function drawNewPolygon() {
 
-    }
+}
 
 
 
@@ -317,21 +317,21 @@ function showMap(position){
         if(firstDrawing) {
 
             /*
-                Sætte masterPolygon til det overordnede polygon.
+             Sætte masterPolygon til det overordnede polygon.
              */
             masterPolygon = event.overlay;
             /*
-                Print koordinater til browser vinduet.
+             Print koordinater til browser vinduet.
              */
             printCoordinates();
 
             /*
-                Reset drawing manager, så der skal klikkes igen for at tegne ny tegning.
+             Reset drawing manager, så der skal klikkes igen for at tegne ny tegning.
              */
             drawingManager.setDrawingMode(null);
 
             /*
-                Tilføj listener til hvert overlay, så at det vælges hvis man trykker på det.
+             Tilføj listener til hvert overlay, så at det vælges hvis man trykker på det.
              */
             var newShape = event.overlay;
             newShape.type = event.type;
@@ -341,12 +341,12 @@ function showMap(position){
             })
 
             /*
-                Når overlay er tegnet, er det valgt fra starten af.
+             Når overlay er tegnet, er det valgt fra starten af.
              */
             setSelection(newShape);
 
             /*
-                Gem alle vektorer fra tegnet overlay.
+             Gem alle vektorer fra tegnet overlay.
              */
             saveVectors(event.overlay);
 
@@ -354,17 +354,17 @@ function showMap(position){
 
         } else {
             /*
-                Gem alle vektorer fra tegnet overlay.
+             Gem alle vektorer fra tegnet overlay.
              */
             saveVectors(event.overlay);
 
             /*
-                Beregn skæringer imellem vektorerne.
+             Beregn skæringer imellem vektorerne.
              */
             calculateIntersections();
 
             /*
-                Tegn ny polygon
+             Tegn ny polygon
              */
 
             event.overlay.setMap(null);
@@ -380,12 +380,12 @@ function showMap(position){
             });
 
             /*
-                Print koordinater til browser vinduet.
+             Print koordinater til browser vinduet.
              */
-                printCoordinates();
+            printCoordinates();
 
             /*
-                Reset drawing manager, så der skal klikkes igen for at tegne ny tegning.
+             Reset drawing manager, så der skal klikkes igen for at tegne ny tegning.
              */
             drawingManager.setDrawingMode(null);
 

@@ -7,16 +7,17 @@ import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
 public class MapsActivity extends FragmentActivity {
 
+    private Marker destinationMarker;
     private LocationListener locationListener = null;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
@@ -71,7 +72,7 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private void setUpMap() {
-
+        mMap.setMyLocationEnabled(true);
     }
 
     private void changeMap(LatLng pos){
@@ -81,11 +82,11 @@ public class MapsActivity extends FragmentActivity {
 
         mMap.addMarker(new MarkerOptions().position(pos));
 
-        mMap.
     }
 
     public void setLocation(double latitude, double longitude){
         LatLng pos = new LatLng(latitude,longitude);
         changeMap(pos);
     }
+
 }
