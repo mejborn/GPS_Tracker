@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Watch_Project", "Watch_Project.vcxproj", "{72DC83AB-6043-469F-9898-C462CEFFD65A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Watch_Project", "..\..\..\..\Arduino\Watch_Project\Watch_Project.vcxproj", "{35647BC5-56ED-4940-9B52-1C9D29FCE05E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{72DC83AB-6043-469F-9898-C462CEFFD65A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{72DC83AB-6043-469F-9898-C462CEFFD65A}.Debug|Win32.Build.0 = Debug|Win32
+		{72DC83AB-6043-469F-9898-C462CEFFD65A}.Release|Win32.ActiveCfg = Release|Win32
+		{72DC83AB-6043-469F-9898-C462CEFFD65A}.Release|Win32.Build.0 = Release|Win32
+		{35647BC5-56ED-4940-9B52-1C9D29FCE05E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{35647BC5-56ED-4940-9B52-1C9D29FCE05E}.Debug|Win32.Build.0 = Debug|Win32
+		{35647BC5-56ED-4940-9B52-1C9D29FCE05E}.Release|Win32.ActiveCfg = Release|Win32
+		{35647BC5-56ED-4940-9B52-1C9D29FCE05E}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
