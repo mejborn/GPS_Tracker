@@ -63,20 +63,6 @@ function deleteSelectShape() {
 
 }
 
-function addListeners() {
-    google.maps.event.addListener(masterPolygon, 'click', function (e) {
-        setSelection(masterPolygon);
-    })
-
-    google.maps.event.addListener(masterPolygon, 'drag', function(e) {
-        printCoordinates();
-    })
-
-    google.maps.event.addListener(masterPolygon, 'resize', function(e) {
-        printCoordinates();
-    })
-}
-
 function bound(value, opt_min, opt_max) {
     if (opt_min != null) value = Math.max(value,opt_min);
     if (opt_max != null) value = Math.min(value,opt_max);
@@ -169,7 +155,6 @@ function saveVectors(tempPolygon)
     if(firstDrawing) {
         oldVectors = newVectors;
         newVectors = [];
-        firstDrawing = false;
     }
 }
 
@@ -187,13 +172,17 @@ function calculateIntersections() {
         for (var j = 0; j < newVectors.length; j++) {
             /* y = a1 * x + b1
              y = a2 * x + b2
+
              a1 * x + b1 = a2 * x + b2
              a1 * x - a2 * x = b2 - b1
              x(a1 - a2) = b2 - b1
              x = b2 - b1 / a1 - a2
+
              y = a2 * x + b2
              x = (y-b2)/a2
+
              y = a1*((y-b2)/a2)+b1
+
              */
 
             a2 = newVectors[j][0];
@@ -247,12 +236,12 @@ function calculateIntersections() {
             }
 
             /*
-             var l = currentNewVector + 1;
-             while(l < newVectors.length && !google.maps.geometry.poly.containsLocation(projection.fromPointToLatLng([newVectors[l][3],newVectors[l][5]]),masterPolygon)) {
-             newPoints.push(projection.fromPointToLatLng([newVectors[l][3],newVectors[l][5]]));
-             l++;
-             }
-             */
+            var l = currentNewVector + 1;
+            while(l < newVectors.length && !google.maps.geometry.poly.containsLocation(projection.fromPointToLatLng([newVectors[l][3],newVectors[l][5]]),masterPolygon)) {
+                newPoints.push(projection.fromPointToLatLng([newVectors[l][3],newVectors[l][5]]));
+                l++;
+            }
+            */
             newPoints.push(projection.fromPointToLatLng([newVectors[2][2],newVectors[2][4]]));
             newPoints.push(projection.fromPointToLatLng([tempPoints[choice+1][0], tempPoints[choice+1][1]]));
 
@@ -266,6 +255,22 @@ function calculateIntersections() {
 
     masterPolygon.setMap(null);
 }
+
+function dotInsidePolygon(overlay) {
+    for(var i = 0; i < overlay.getPath().length; i++) {
+        if(google.maps.geometry.poly.containsLocation(overlay.getPath().getAt(i), masterPolygon)) {
+
+        }
+    }
+
+}
+
+function drawNewPolygon() {
+
+    }
+
+
+
 
 function showMap(position){
 
@@ -315,12 +320,6 @@ function showMap(position){
                 Sætte masterPolygon til det overordnede polygon.
              */
             masterPolygon = event.overlay;
-
-            /*
-            tilføj listeners til overordnet polygon.
-             */
-            addListeners();
-
             /*
                 Print koordinater til browser vinduet.
              */
@@ -332,126 +331,70 @@ function showMap(position){
             drawingManager.setDrawingMode(null);
 
             /*
+                Tilføj listener til hvert overlay, så at det vælges hvis man trykker på det.
+             */
+            var newShape = event.overlay;
+            newShape.type = event.type;
+            google.maps.event.addListener(newShape, 'click', function (e) {
+                setSelection(newShape);
+                printCoordinates(newShape);
+            })
+
+            /*
                 Når overlay er tegnet, er det valgt fra starten af.
              */
-            setSelection(masterPolygon);
+            setSelection(newShape);
 
             /*
                 Gem alle vektorer fra tegnet overlay.
              */
             saveVectors(event.overlay);
 
+            firstDrawing = false;
+
         } else {
+            /*
+                Gem alle vektorer fra tegnet overlay.
+             */
+            saveVectors(event.overlay);
 
             /*
-            Se om det tegnet polygon enten dækker hele det gamle polygon eller
-            om det gamle polygon dækker hele det nye polygon. Samtidig checkes også
-            om polygonerne overlapper hinanden. Hvis ikke, slettes det ny tegnet og det gamle
-            gemmes som sædvanlig.
+                Beregn skæringer imellem vektorerne.
              */
-            var pointsToCheckFirst = 0;
-            var pointsToCheckSecond = 0;
-            var pointsOutsideToCheck = 0;
+            calculateIntersections();
 
-            while(pointsToCheckFirst != event.overlay.getPath().j.length) {
-                if(google.maps.geometry.poly.containsLocation(event.overlay.getPath().getAt(pointsToCheckFirst), masterPolygon)) {
-                    pointsToCheckFirst++;
-                } else {
-                    break;
-                }
-            }
-            while(pointsToCheckSecond != masterPolygon.getPath().j.length) {
-                if(google.maps.geometry.poly.containsLocation(masterPolygon.getPath().getAt(pointsToCheckSecond), event.overlay)) {
-                    pointsToCheckSecond++;
-                } else {
-                    break;
-                }
-            }
-            while(pointsOutsideToCheck != event.overlay.getPath().j.length) {
-                if(!(google.maps.geometry.poly.containsLocation(event.overlay.getPath().getAt(pointsOutsideToCheck), masterPolygon))) {
-                    pointsOutsideToCheck++;
-                } else {
-                    break;
-                }
-            }
-            console.log(pointsOutsideToCheck);
-            if(pointsToCheckFirst == event.overlay.getPath().j.length) {
-                event.overlay.setMap(null);
-            } else if (pointsToCheckSecond == masterPolygon.getPath().j.length) {
-                /*
-                 Hvis det nye polygon dækker det gamle, så fjernes alle de gamle punkter, og oldVectors slettes,
-                 da disse vektorer ikke skal bruges mere.
-                 */
-                masterPolygon.setMap(null);
-                oldVectors = [];
-                masterPolygon = event.overlay;
+            /*
+                Tegn ny polygon
+             */
 
+            event.overlay.setMap(null);
+
+            new google.maps.Polygon({
+                paths: allPoints,
+                clickable: true,
+                editable: true,
+                draggable: true,
+                strokeWeight: 0,
+                fillOpacity: 0.45,
+                map: map
+            });
+
+            /*
+                Print koordinater til browser vinduet.
+             */
                 printCoordinates();
 
-                drawingManager.setDrawingMode(null);
+            /*
+                Reset drawing manager, så der skal klikkes igen for at tegne ny tegning.
+             */
+            drawingManager.setDrawingMode(null);
 
-                addListeners();
-
-                setSelection(masterPolygon);
-
-                firstDrawing = true;
-                saveVectors(event.overlay);
-            } else if (pointsOutsideToCheck == event.overlay.getPath().j.length) {
-                event.overlay.setMap(null);
-                window.alert("Husk at tegne så boksene går over hinanden!");
-            } else {
-
-                /*
-                 Gem alle vektorer fra tegnet overlay.
-                 */
-                saveVectors(event.overlay);
-
-                /*
-                 Beregn skæringer imellem vektorerne.
-                 */
-                calculateIntersections();
-
-                /*
-                 Tegn ny polygon
-                 */
-
-                event.overlay.setMap(null);
-
-                masterPolygon = new google.maps.Polygon({
-                    paths: allPoints,
-                    clickable: true,
-                    editable: true,
-                    draggable: true,
-                    strokeWeight: 0,
-                    fillOpacity: 0.45,
+            for(var i = 0; i < intersectionsArray.length; i++) {
+                var marker = new google.maps.Marker({
+                    position: intersectionsArray[i],
                     map: map
                 });
-
-                addListeners();
-
-                /*
-                 Print koordinater til browser vinduet.
-                 */
-                printCoordinates();
-
-                /*
-                 Reset drawing manager, så der skal klikkes igen for at tegne ny tegning.
-                 */
-                drawingManager.setDrawingMode(null);
-
-                /*
-                 Tegning af hvor intersections er med markers
-                 */
-
-                /*
-                 for(var i = 0; i < intersectionsArray.length; i++) {
-                 var marker = new google.maps.Marker({
-                 position: intersectionsArray[i],
-                 map: map
-                 });
-                 console.log("(Lat, Lng) : (" + intersectionsArray[i].k + ", " + intersectionsArray[i].D + ")");
-                 }
-                 */
+                console.log("(Lat, Lng) : (" + intersectionsArray[i].k + ", " + intersectionsArray[i].D + ")");
             }
         }
     });

@@ -7,18 +7,20 @@ import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
 public class MapsActivity extends FragmentActivity {
 
-    private LocationListener locationListener = null;
+    private Marker destinationMarker;
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
+    private ConnectionManager connectionManager = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,12 +29,9 @@ public class MapsActivity extends FragmentActivity {
         //Set orientation to Portrait
         setRequestedOrientation(ActivityInfo
                 .SCREEN_ORIENTATION_PORTRAIT);
-        //Enable the location manager
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        //Create a new location listener, and find current location
-        locationListener = new MyLocationListener(this);
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,locationListener);
+
         setUpMapIfNeeded();
+        setUpConnectionManagerIfNeeded();
 
     }
 
@@ -42,21 +41,6 @@ public class MapsActivity extends FragmentActivity {
         setUpMapIfNeeded();
     }
 
-    /**
-     * Sets up the map if it is possible to do so (i.e., the Google Play services APK is correctly
-     * installed) and the map has not already been instantiated.. This will ensure that we only ever
-     * call {@link #setUpMap()} once when {@link #mMap} is not null.
-     * <p/>
-     * If it isn't installed {@link SupportMapFragment} (and
-     * {@link com.google.android.gms.maps.MapView MapView}) will show a prompt for the user to
-     * install/update the Google Play services APK on their device.
-     * <p/>
-     * A user can return to this FragmentActivity after following the prompt and correctly
-     * installing/updating/enabling the Google Play services. Since the FragmentActivity may not
-     * have been completely destroyed during this process (it is likely that it would only be
-     * stopped or paused), {@link #onCreate(Bundle)} may not be called again so we should call this
-     * method in {@link #onResume()} to guarantee that it will be called.
-     */
     private void setUpMapIfNeeded() {
         // Do a null check to confirm that we have not already instantiated the map.
         if (mMap == null) {
@@ -70,22 +54,24 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
-    private void setUpMap() {
+    private void setUpConnectionManagerIfNeeded(){
+        if(connectionManager == null){
+            connectionManager = new ConnectionManager(this);
+        }
+    }
 
+    private void setUpMap() {
+        mMap.setMyLocationEnabled(true);
     }
 
     private void changeMap(LatLng pos){
+        //@TODO:Remove last marker!
         mMap.addMarker(new MarkerOptions().position(pos));
-
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos,15));
-
-        mMap.addMarker(new MarkerOptions().position(pos));
-
-        mMap.
     }
 
     public void setLocation(double latitude, double longitude){
         LatLng pos = new LatLng(latitude,longitude);
         changeMap(pos);
     }
+
 }
