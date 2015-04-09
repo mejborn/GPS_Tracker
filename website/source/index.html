@@ -17,23 +17,11 @@
 <h1 style="text-align: center">Arduino Projekt</h1>
 <div id="map-canvas"></div>
 <div id="buttons">
-    <button id="deleteShape">Slet valgte område</button>
-    <button id="deleteAllShapes">Slet alle områder</button>
-    <button id="submit">Gem områder</button>
+    <button id="deleteShape">Slet område</button>
+    <button id="downloadPoints">Gem områder</button>
     <script src="https://maps.googleapis.com/maps/api/js?AIzaSyCiqfn23Gqe_IjUaPwXJETVOUZlblXnaLk&v=3.exp&libraries=drawing"></script>
 
     <script src="map.js"></script>
-
-    <script type="text/javascript">
-        function exportFile() {
-            var myFile = "Col1,Col2,Col3\nval1,val2,val3";
-
-            window.open('data:text/csv;charset=utf-8,' + escape(myFile));
-        }
-
-        var button = document.getElementById('submit');
-        button.addEventListener('click', exportFile);
-    </script>
 </div>
 <h3 style="text-align: center">Koordinater:</h3>
 <p id="coords", style="text-align: center">Ingen områder endnu.</p>
