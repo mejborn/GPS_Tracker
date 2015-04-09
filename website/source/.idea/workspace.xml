@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="fbef34fc-efe6-4037-9d21-dbcebe518ac8" name="Default" comment="">
+    <list default="true" id="fbef34fc-efe6-4037-9d21-dbcebe518ac8" name="Default" comment="Så kan der merges på en bestemt måde!">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Projectplan.docx" afterPath="$PROJECT_DIR$/../../Projectplan.docx" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/../../Projectplan.pdf" afterPath="$PROJECT_DIR$/../../Projectplan.pdf" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/map.js" afterPath="$PROJECT_DIR$/map.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -29,21 +31,27 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="map.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="map.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/map.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-25.09091" vertical-offset="3990" max-vertical-offset="6360">
-              <caret line="358" column="16" selection-start-line="358" selection-start-column="16" selection-end-line="358" selection-end-column="16" />
-              <folding />
+            <state vertical-scroll-proportion="8.739316" vertical-offset="0" max-vertical-offset="6675">
+              <caret line="438" column="35" selection-start-line="438" selection-start-column="35" selection-end-line="438" selection-end-column="35" />
+              <folding>
+                <element signature="n#!!block;n#printCoordinates#0" expanded="false" />
+                <element signature="n#!!block;n#clearSelection#0" expanded="false" />
+                <element signature="n#!!block;n#setSelection#0" expanded="false" />
+                <element signature="n#!!block;n#deleteSelectShape#0" expanded="false" />
+                <element signature="n#!!block;n#getLocation#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="index.html" pinned="false" current-in-tab="true">
+      <file leaf-file-name="index.html" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/index.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.5643994" vertical-offset="0" max-vertical-offset="691">
-              <caret line="26" column="33" selection-start-line="26" selection-start-column="33" selection-end-line="26" selection-end-column="33" />
+            <state vertical-scroll-proportion="-3.125" vertical-offset="0" max-vertical-offset="690">
+              <caret line="5" column="27" selection-start-line="5" selection-start-column="27" selection-end-line="5" selection-end-column="27" />
               <folding>
                 <element signature="n#style#0;n#h1#0;n#body#0;n#html#0;n#!!top" expanded="true" />
               </folding>
@@ -98,7 +106,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
@@ -120,6 +127,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -402,7 +410,11 @@
       <workItem from="1426708588561" duration="793000" />
       <workItem from="1426753607027" duration="2657000" />
       <workItem from="1426756433195" duration="3220000" />
-      <workItem from="1426784376979" duration="9574000" />
+      <workItem from="1426784376979" duration="9897000" />
+      <workItem from="1427355230790" duration="2974000" />
+      <workItem from="1428232936510" duration="7364000" />
+      <workItem from="1428515648654" duration="6648000" />
+      <workItem from="1428561594820" duration="3541000" />
     </task>
     <task id="LOCAL-00001" summary="Changed some project structure">
       <created>1424940380952</created>
@@ -440,11 +452,17 @@
       <option name="project" value="LOCAL" />
       <updated>1426595685598</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Så kan der merges på en bestemt måde!">
+      <created>1426797948383</created>
+      <option name="number" value="00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1426797948383</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="39120000" />
+    <option name="totallyTimeSpent" value="59970000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="812" extended-state="6" />
@@ -499,7 +517,8 @@
     <MESSAGE value="Merging forsøg, virker ikke helt endnu." />
     <MESSAGE value="Kun en funktion til at vise map." />
     <MESSAGE value="Markers kommer op på skæringspunkter. Der er dog små afrundingsfejl." />
-    <option name="LAST_COMMIT_MESSAGE" value="Markers kommer op på skæringspunkter. Der er dog små afrundingsfejl." />
+    <MESSAGE value="Så kan der merges på en bestemt måde!" />
+    <option name="LAST_COMMIT_MESSAGE" value="Så kan der merges på en bestemt måde!" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -516,7 +535,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3870">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <folding>
+            <element signature="n#!!block;n#printCoordinates#0" expanded="false" />
+            <element signature="n#!!block;n#clearSelection#0" expanded="false" />
+            <element signature="n#!!block;n#setSelection#0" expanded="false" />
+            <element signature="n#!!block;n#deleteSelectShape#0" expanded="false" />
+            <element signature="n#!!block;n#getLocation#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -600,20 +625,26 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/map.js">
+    <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-25.09091" vertical-offset="3990" max-vertical-offset="6360">
-          <caret line="358" column="16" selection-start-line="358" selection-start-column="16" selection-end-line="358" selection-end-column="16" />
-          <folding />
+        <state vertical-scroll-proportion="-3.125" vertical-offset="0" max-vertical-offset="690">
+          <caret line="5" column="27" selection-start-line="5" selection-start-column="27" selection-end-line="5" selection-end-column="27" />
+          <folding>
+            <element signature="n#style#0;n#h1#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/index.html">
+    <entry file="file://$PROJECT_DIR$/map.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5643994" vertical-offset="0" max-vertical-offset="691">
-          <caret line="26" column="33" selection-start-line="26" selection-start-column="33" selection-end-line="26" selection-end-column="33" />
+        <state vertical-scroll-proportion="8.739316" vertical-offset="0" max-vertical-offset="6675">
+          <caret line="438" column="35" selection-start-line="438" selection-start-column="35" selection-end-line="438" selection-end-column="35" />
           <folding>
-            <element signature="n#style#0;n#h1#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#!!block;n#printCoordinates#0" expanded="false" />
+            <element signature="n#!!block;n#clearSelection#0" expanded="false" />
+            <element signature="n#!!block;n#setSelection#0" expanded="false" />
+            <element signature="n#!!block;n#deleteSelectShape#0" expanded="false" />
+            <element signature="n#!!block;n#getLocation#0" expanded="false" />
           </folding>
         </state>
       </provider>
