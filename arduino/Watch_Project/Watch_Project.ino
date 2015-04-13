@@ -8,6 +8,8 @@ SoftwareSerial bluetooth(0,10); //RX,TX
 
 int led = 7;
 
+void sendData(vec pos);
+
 void setup()
 {
 	pinMode(led, OUTPUT);
@@ -23,11 +25,11 @@ void setup()
 	// Ask for firmware version
 	Serial1.println(PMTK_Q_RELEASE);
 	//@TODO: Get designated area
-
 }
 
 //@TODO: Get polygon from web / Serial instead of hardcoding.
 uint32_t timer = millis();
+
 vec building322[] = {
 		{ 55.78354322750842, 12.518640272319317 },
 		{ 55.78338636792162, 12.519528083503246 },
@@ -37,49 +39,59 @@ vec building322[] = {
 
 polygon_t building322p = { 4, building322 };
 
-char recievedChars[32];
-boolean newData = false;
+vec *allowedAread;
+
+char recievedChars[64];
+float latitude, longitude;
+vec recievedVectors[64];
+boolean newData = false, readSerial = false, hasLat = false;
+int numRecievedVectors = 0;
 
 void loop()
 {
 	float fLat, fLon;
 	//@TODO: Get polygon from web / Serial instead of hardcoding.
+	//@TODO: Missing the create polynomium part
+	//@TODO: BUG! Does not catch exeptions when there's a $ in the middle of a vector.
+	if (Serial.available() > 0 && Serial.read() == '$'){
+		if (!newData)
+			readSerial = !readSerial;
+		else{
+			allowedAread = new vec[numRecievedVectors / 2];
+			for (int i = 0; i < numRecievedVectors; i+2){
+				allowedAread[i/2] = (recievedVectors[i], recievedVectors[i + 1]);
+			}
+			newData = false;
+		}
 
-	//Send data trough the serial port
-	if (Serial.available() > 0 && newData == false) {
+	}
+	//If readSerial is true. Begin reading points from serial
+	if (Serial.available() > 0 && readSerial){
 		static byte ndx = 0;
-		char endMarker = '\n';
-		char pointMarker = ',';
+		static char pointMarker = ',';
 		int rc = Serial.read();
 
-		if (rc != endMarker && rc != pointMarker) {
+		if (rc != pointMarker) {
 			//Add value to the char array untill pointmarker has been reached
 			recievedChars[ndx] = rc;
 			ndx++;
 		}
-		else if (rc != endMarker && rc == pointMarker){
-			// @TODO: Create a new vector from the char array and reset the char array
-			//ATM It's just sending it via bluetooth for testing purposes
+		else{
 			recievedChars[ndx] = '\0'; // terminate the string
-			for (int i = 0; i < sizeof(recievedChars) / sizeof(recievedChars[0]); i++){
-				Serial1.print(recievedChars[i]);
-				Serial.print(recievedChars[i]);
+			if (!hasLat){
+				latitude = atof(recievedChars);
+				hasLat = true;
 			}
-			Serial1.println();
-			Serial.println();
+			else{
+				latitude = atof(recievedChars);
+				recievedVectors[numRecievedVectors] = { latitude, longitude };
+				numRecievedVectors++;
+				hasLat = false;
+			}
 			memset(recievedChars, 0, 32);
 			ndx = 0;
 		}
-		else {
-			// @TODO: Create the last vector from char array and build a new polygon from vectors.
-			// Reset input data
-
-			recievedChars[ndx] = '\0'; // terminate the string
-
-			memset(recievedChars, 0, 32);
-			ndx = 0;
-			newData = true;
-		}
+		newData = true;
 	}
 
 	//Get current position by GPS fix                    
@@ -93,24 +105,27 @@ void loop()
 	// if millis() or timer wraps around, we'll just reset it
 	if (timer > millis())  timer = millis();
 
-	// approximately every 2 seconds or so, print out the current stats
+	// approximately every 2 seconds check if current position is within the allowed area
+	// @TODO: Initially wait a little more than 2 seconds to do the check, and if outside make the timer smaller.
 	if (millis() - timer > 2000) {
 		timer = millis(); // reset the timer
 		if (GPS.fix) {
 			//GPS Has been fixed. Check position, and send to phone if needed
+			//@TODO: The inside check should take into account the quality of the GPS signal
+			//@TODO: Low signal warning to phone?
 			fLat = (decimalDegrees(GPS.latitude, GPS.lat));
 			fLon = (decimalDegrees(GPS.longitude, GPS.lon));
-			Serial.println(fLat, 6);
-			Serial.println(fLon, 6);
 			vec pos = { fLat, fLon };
-			if (inside(pos, &building322p, 1e-01) == -1 && GPS.fix){
-				//@TODO
-				//I Am outside of the designated area. Send warning to phone!
+			if (inside(pos, &building322p, 1e-01) == -1){
+				//@TODO: Send warning to phone, and start pushing data
+				//Pushing data trough bluetooth done!
 				digitalWrite(led, HIGH);
-				sendData(fLat, fLon);
+				sendData(pos);
 			}
 			else{
-				//I Am inside of the designated area. Do nothing
+				//@TODO: If previously outside designated area, send "safe" notification to phone
+				//			Keep pushing data untill safe notification has been sent
+				//Else do nothing
 				digitalWrite(led, LOW);
 			}
 		}
@@ -134,7 +149,7 @@ float decimalDegrees(float nmeaCoord, char dir) {
 	return (wholeDegrees + (nmeaCoord - 100.0*wholeDegrees) / 60.0) * modifier;
 }
 
-void sendData(float latitude, float longitude){
-	bluetooth.println(latitude);
-	bluetooth.println(longitude);
+void sendData(vec pos){
+	bluetooth.println(pos.x,10);
+	bluetooth.println(pos.y,10);
 }
