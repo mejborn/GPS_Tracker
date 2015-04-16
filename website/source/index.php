@@ -14,25 +14,16 @@
     </style>
 </head>
 <body>
-<?php
-
-/*
-    CREATE TABLE
-*/
-    require("common.php");
-
-    
-?>
 <h1 style="text-align: center">Arduino Projekt</h1>
 <div id="map-canvas"></div>
 <div id="buttons">
     <button id="deleteShape">Slet område</button>
-    <button id="downloadPoints">Gem områder</button>
-    <form>
-        <input type="button" value="Login" onclick="window.location.href='login.php'">
+    <button id="downloadPoints">Hent områder</button>
+    <form action="saveareas.php" method="post">
+        <input type="submit" value="Gem områder"/>
+        <input type="hidden" id="DBcoords" name="koordinater"/>
     </form>
     <script src="https://maps.googleapis.com/maps/api/js?AIzaSyCiqfn23Gqe_IjUaPwXJETVOUZlblXnaLk&v=3.exp&libraries=drawing"></script>
-
     <script src="map.js"></script>
 </div>
 <h3 style="text-align: center">Koordinater:</h3>

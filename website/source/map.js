@@ -22,16 +22,21 @@ var downloadFile = document.getElementById("downloadPoints");
 downloadFile.addEventListener('click', downloadTxtFile);
 
 function downloadTxtFile() {
-    function downloadInnerHtml(filename, mimeType) {
-        var link = document.createElement('a');
-        mimeType = mimeType || 'text/plain';
-        link.setAttribute('download', filename);
-        link.setAttribute('href', 'data:' + mimeType  +  ';charset=utf-8,' + encodeURIComponent(coordinatesForDownload));
-        link.click();
+    if(masterPolygon == null) {
+        window.alert("Intet at gemme!");
+    } else {
+        function downloadInnerHtml(filename, mimeType) {
+            var link = document.createElement('a');
+            mimeType = mimeType || 'text/plain';
+            link.setAttribute('download', filename);
+            link.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(coordinatesForDownload));
+            link.click();
+        }
+
+        var fileName = 'koordinater.txt';
+        downloadInnerHtml(fileName, 'text/plain');
+        return false;
     }
-    var fileName =  'koordinater.txt';
-    downloadInnerHtml(fileName,'text/plain');
-    return false;
 }
 
 
@@ -59,6 +64,7 @@ function printCoordinates() {
             }
         }
         document.getElementById('coords').innerHTML = coordinatesForHtml;
+        document.getElementById('DBcoords').value = coordinatesForDownload;
     }
 }
 
