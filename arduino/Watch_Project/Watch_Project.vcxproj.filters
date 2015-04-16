@@ -17,12 +17,16 @@
   <ItemGroup>
     <None Include="Watch_Project.ino" />
     <None Include="raycasting.ino" />
+    <None Include="readArea.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Visual Micro\.Watch_Project.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="raycasting.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="readArea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
