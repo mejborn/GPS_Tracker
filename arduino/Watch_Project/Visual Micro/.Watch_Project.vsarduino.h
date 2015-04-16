@@ -62,4 +62,6 @@ extern "C" void __cxa_pure_virtual() {;}
 #include <Watch_Project.ino>
 #include <raycasting.h>
 #include <raycasting.ino>
+#include <readArea.h>
+#include <readArea.ino>
 #endif

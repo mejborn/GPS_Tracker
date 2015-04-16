@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 #include "Adafruit_NeoPixel.h"
 #include "raycasting.h"
+#include "readArea.h"
 #include <Adafruit_GPS.h>
 
 Adafruit_GPS GPS(&Serial1);
@@ -30,16 +31,9 @@ void setup()
 //@TODO: Get polygon from web / Serial instead of hardcoding.
 uint32_t timer = millis();
 
-vec building322[] = {
-		{ 55.78354322750842, 12.518640272319317 },
-		{ 55.78338636792162, 12.519528083503246 },
-		{ 55.783258164905725, 12.519459687173367 },
-		{ 55.783415779142246, 12.518569193780422 },
-};
-
-polygon_t building322p = { 4, building322 };
-
-vec *allowedAread;
+vec *allowedArea;
+polygon_t allowedAreap;
+boolean hasAllowedArea = false;
 
 char recievedChars[64];
 float latitude, longitude;
@@ -51,48 +45,13 @@ void loop()
 {
 	float fLat, fLon;
 	//@TODO: Get polygon from web / Serial instead of hardcoding.
-	//@TODO: Missing the create polynomium part
+	//@TODO: Reads allowed area. Should check periodically if there's changes.
 	//@TODO: BUG! Does not catch exeptions when there's a $ in the middle of a vector.
-	if (Serial.available() > 0 && Serial.read() == '$'){
-		if (!newData)
-			readSerial = !readSerial;
-		else{
-			allowedAread = new vec[numRecievedVectors / 2];
-			for (int i = 0; i < numRecievedVectors; i+2){
-				allowedAread[i/2] = (recievedVectors[i], recievedVectors[i + 1]);
-			}
-			newData = false;
-		}
 
-	}
-	//If readSerial is true. Begin reading points from serial
-	if (Serial.available() > 0 && readSerial){
-		static byte ndx = 0;
-		static char pointMarker = ',';
-		int rc = Serial.read();
+	//if (!hasAllowedArea){
+		readArea();
+	//}
 
-		if (rc != pointMarker) {
-			//Add value to the char array untill pointmarker has been reached
-			recievedChars[ndx] = rc;
-			ndx++;
-		}
-		else{
-			recievedChars[ndx] = '\0'; // terminate the string
-			if (!hasLat){
-				latitude = atof(recievedChars);
-				hasLat = true;
-			}
-			else{
-				latitude = atof(recievedChars);
-				recievedVectors[numRecievedVectors] = { latitude, longitude };
-				numRecievedVectors++;
-				hasLat = false;
-			}
-			memset(recievedChars, 0, 32);
-			ndx = 0;
-		}
-		newData = true;
-	}
 
 	//Get current position by GPS fix                    
 	char c = GPS.read();
@@ -116,7 +75,7 @@ void loop()
 			fLat = (decimalDegrees(GPS.latitude, GPS.lat));
 			fLon = (decimalDegrees(GPS.longitude, GPS.lon));
 			vec pos = { fLat, fLon };
-			if (inside(pos, &building322p, 1e-01) == -1){
+			if (inside(pos, &allowedAreap, 1e-01) == -1){
 				//@TODO: Send warning to phone, and start pushing data
 				//Pushing data trough bluetooth done!
 				digitalWrite(led, HIGH);
