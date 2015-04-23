@@ -11,25 +11,29 @@ require("common.php");
 
 if(!empty($_POST)) {
     if(!empty($_POST['koordinater'])) {
+        if(empty($_POST['ID'])) {
+            header('Location: index.php');
+        } else {
+            $query = "
+                    UPDATE IDs
+                    SET koordinater=:koordinater
+                    WHERE ID=:id
+                ";
 
-        $query = "
-                INSERT INTO koordinater (
-                    koordinater
-                ) VALUES (
-                    :koordinater
-                )
-            ";
+            $query_params = array(
+                ':koordinater' => $_POST['koordinater'],
+                ':id' => $_POST['ID']
+            );
 
-        $query_params = array(
-            ':koordinater' => $_POST['koordinater']
-        );
-
-        try {
-            $stmt = $db->prepare($query);
-            $result = $stmt->execute($query_params);
-        } catch (PDOException $ex) {
-            die("Failed to run query: " . $ex->getMessage());
+            try {
+                $stmt = $db->prepare($query);
+                $result = $stmt->execute($query_params);
+            } catch (PDOException $ex) {
+                die("Failed to run query: " . $ex->getMessage());
+            }
         }
+    } else {
+        header('Location: index.php');
     }
 }
 

@@ -15,13 +15,18 @@
 </head>
 <body>
 <h1 style="text-align: center">Arduino Projekt</h1>
+<h4 style="text-align: center">Husk at indtaste ID, ellers går tegningen tabt!</h4>
 <div id="map-canvas"></div>
 <div id="buttons">
     <button id="deleteShape">Slet område</button>
     <button id="downloadPoints">Hent områder</button>
     <form action="saveareas.php" method="post">
+        Indtast ID: <input type="text" name="ID">
         <input type="submit" value="Gem områder"/>
         <input type="hidden" id="DBcoords" name="koordinater"/>
+    </form>
+    <form>
+        <input type="button" value="Login" onclick="window.location.href='login.php'">
     </form>
     <script src="https://maps.googleapis.com/maps/api/js?AIzaSyCiqfn23Gqe_IjUaPwXJETVOUZlblXnaLk&v=3.exp&libraries=drawing"></script>
     <script src="map.js"></script>
