@@ -40,6 +40,9 @@ if(!empty($_POST)) {
 
 ?>
 <html>
+<head>
+    <title>Arduino Projekt</title>
+</head>
 <body>
 <h2>Saved!</h2>
 <a href="index.php">Return</a>

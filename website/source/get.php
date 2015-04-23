@@ -29,3 +29,9 @@ if(!empty($_GET['ID'])) {
 
     echo $row['koordinater'];
 }
+?>
+<html>
+<head>
+    <title>Arduino Projekt</title>
+</head>
+</html>

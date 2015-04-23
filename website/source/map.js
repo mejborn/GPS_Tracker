@@ -42,7 +42,7 @@ function downloadTxtFile() {
 
 function printCoordinates() {
     if(masterPolygon == null) {
-        document.getElementById('coords').innerHTML = "Ingen områder endnu.";
+        document.getElementById('coords').innerHTML = "Intet område endnu.";
     } else {
         /*
             .k er Latitude og .D er Longitude.

@@ -30,6 +30,13 @@ if(!empty($_GET['ID'])) {
     print $row['koordinater'];
 }
 ?>
+<html>
+<head>
+    <title>Arduino Projekt</title>
+</head>
+<body>
 <br>
 <br>
 <a href="private.php">Tilbage</a>
+</body>
+</html>

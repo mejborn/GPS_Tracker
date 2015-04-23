@@ -64,7 +64,12 @@
         } 
     } 
      
-?> 
+?>
+<html>
+<head>
+    <title>Arduino Projekt</title>
+</head>
+<body>
 <h1>Login</h1> 
 <form action="login.php" method="post"> 
     Username:<br /> 
@@ -76,3 +81,5 @@
     <input type="submit" value="Login" /> 
 </form>
 <a href="index.php">Tilbage</a>
+</body>
+</html>
