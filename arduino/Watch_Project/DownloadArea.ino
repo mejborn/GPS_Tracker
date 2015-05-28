@@ -170,7 +170,6 @@ int8_t sendATcommand2(char* ATcommand, char* expected_answer1,
 
 	// this loop waits for the answer
 	do{
-
 		if (gprs.available() != 0){
 			response[x] = gprs.read();
 			x++;

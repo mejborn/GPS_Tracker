@@ -60,8 +60,11 @@ extern "C" void __cxa_pure_virtual() {;}
 #define portInputRegister(P)
 #define portModeRegister(P)
 #include <Watch_Project.ino>
-#include <raycasting.h>
-#include <raycasting.ino>
-#include <readArea.h>
-#include <readArea.ino>
+#include <DownloadArea.cpp>
+#include <DownloadArea.h>
+#include <DownloadArea.ino>
+#include <RayCasting.h>
+#include <RayCasting.ino>
+#include <ReadArea.h>
+#include <ReadArea.ino>
 #endif

@@ -4,11 +4,16 @@
 #include "readArea.h"
 #include <Adafruit_GPS.h>
 
+
+//Setup the GPS,Bluetooth, and GPRS ports
+//GPRS Module uses pin 0 for TX, 1 for RX, 2 for OnModule function
+//Connect Ard pin D12 for RX, D6 for TX, D9 for OnModules
 Adafruit_GPS GPS(&Serial1);
 SoftwareSerial bluetooth(0,10); //RX,TX
-
+SoftwareSerial gprs(12, 6);
+int onModulePin = 12, aux;
 int led = 7;
-
+bool debug = true;
 void sendData(vec pos);
 
 void setup()
@@ -17,18 +22,34 @@ void setup()
 	Serial.begin(9600);
 	GPS.begin(9600);
 	bluetooth.begin(9600);
+
+	// #####################
+	// # Set up GPS Module #
+	// #####################
 	// Turn on RMC (recommended minimum) and GGA (fix data) including altitude
 	GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
 	// Set the update rate to 1 Hz
 	GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
-
 	delay(1000);
 	// Ask for firmware version
 	Serial1.println(PMTK_Q_RELEASE);
+	delay(1000);
+
+	// ######################
+	// # Set up GPRS Module #
+	// ######################
+	//Initiate with pin code
+	sendATcommand("AT+CPIN=****", "OK", 2000);
+	while ((sendATcommand("AT+CREG?", "+CREG: 0,1", 500) ||
+		sendATcommand("AT+CREG?", "+CREG: 0,5", 500)) == 0);
+	// sets APN, user name and password
+	sendATcommand("AT+CGSOCKCONT=1,\"IP\",\"apn\"", "OK", 2000);
+	sendATcommand("AT+CSOCKAUTH=1,1,\"user_name\",\"password\"", "OK", 2000);
 	//@TODO: Get designated area
+
 }
 
-//@TODO: Get polygon from web / Serial instead of hardcoding.
+//@TODO: Get polygon from web.
 uint32_t timer = millis();
 
 vec *allowedArea;
@@ -44,7 +65,7 @@ int numRecievedVectors = 0;
 void loop()
 {
 	float fLat, fLon;
-	//@TODO: Get polygon from web / Serial instead of hardcoding.
+	//@TODO: Get polygon from web.
 	//@TODO: Reads allowed area. Should check periodically if there's changes.
 	//@TODO: BUG! Does not catch exeptions when there's a $ in the middle of a vector.
 
@@ -68,6 +89,21 @@ void loop()
 	// @TODO: Initially wait a little more than 2 seconds to do the check, and if outside make the timer smaller.
 	if (millis() - timer > 2000) {
 		timer = millis(); // reset the timer
+		//Send GPS Debuggin info to Serial
+		if (debug){
+			Serial.print("\nTime: ");
+			Serial.print(GPS.hour, DEC); Serial.print(':');
+			Serial.print(GPS.minute, DEC); Serial.print(':');
+			Serial.print(GPS.seconds, DEC); Serial.print('.');
+			Serial.println(GPS.milliseconds);
+			Serial.print("Date: ");
+			Serial.print(GPS.day, DEC); Serial.print('/');
+			Serial.print(GPS.month, DEC); Serial.print("/20");
+			Serial.println(GPS.year, DEC);
+			Serial.print("Fix: "); Serial.print((int)GPS.fix);
+			Serial.print(" quality: "); Serial.println((int)GPS.fixquality);
+		}
+
 		if (GPS.fix) {
 			//GPS Has been fixed. Check position, and send to phone if needed
 			//@TODO: The inside check should take into account the quality of the GPS signal
