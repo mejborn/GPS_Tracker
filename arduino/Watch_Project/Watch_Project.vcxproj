@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{45059362-4308-42AE-85E3-FA2DF22C78B3}</ProjectGuid>
+    <ProjectGuid>{B8A56A03-877B-4713-82AD-7DA3328922EF}</ProjectGuid>
     <RootNamespace>Watch_Project</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -44,10 +44,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Arduino\hardware\arduino\cores\arduino;C:\Arduino\hardware\arduino\variants\flora;C:\Users\BusterK\Documents\GitHub\gps-watch\arduino\Watch_Project;C:\Arduino\libraries\SoftwareSerial;C:\Arduino\libraries\SoftwareSerial\utility;C:\Arduino\libraries\Adafruit_NeoPixel;C:\Arduino\libraries\Adafruit_NeoPixel\utility;C:\Arduino\libraries\Adafruit_GPS;C:\Arduino\libraries\Adafruit_GPS\utility;C:\Arduino\libraries;C:\Arduino\hardware\arduino\libraries;C:\Program Files (x86)\Visual Micro\Visual Micro for Arduino\Micro Platforms\default\debuggers;C:\Users\BusterK\Documents\Arduino\libraries;c:\arduino\hardware\tools\avr\avr\include\;c:\arduino\hardware\tools\avr\avr\include\avr\;c:\arduino\hardware\tools\avr\avr\;c:\arduino\hardware\tools\avr\lib\gcc\avr\4.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <ForcedIncludeFiles>C:\Users\BusterK\Documents\GitHub\gps-watch\arduino\Watch_Project\Visual Micro\.Watch_Project.vsarduino.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
-      <IgnoreStandardIncludePath>true</IgnoreStandardIncludePath>
-      <PreprocessorDefinitions>__AVR_ATmega32u4__;__AVR_ATmega32U4__;ARDUINO=105;ARDUINO_MAIN;__AVR__;__avr__;F_CPU=8000000L;__cplusplus;GCC_VERSION=40302;ARDUINO_ARCH_AVR;ARDUINO_AVR_FLORA8;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Arduino\hardware\arduino\cores\arduino;C:\Arduino\hardware\arduino\variants\flora;C:\Users\BusterK\Documents\GitHub\gps-watch\arduino\Watch_Project;C:\Arduino\libraries\Adafruit_FONA;C:\Arduino\libraries\Adafruit_FONA\utility;C:\Arduino\libraries\Adafruit_GPS;C:\Arduino\libraries\Adafruit_GPS\utility;C:\Arduino\libraries\Adafruit_NeoPixel;C:\Arduino\libraries\Adafruit_NeoPixel\utility;C:\Arduino\libraries\SoftwareSerial;C:\Arduino\libraries\SoftwareSerial\utility;C:\Arduino\libraries;C:\Arduino\hardware\arduino\libraries;C:\Program Files (x86)\Visual Micro\Visual Micro for Arduino\Micro Platforms\default\debuggers;C:\Users\BusterK\Documents\Arduino\libraries;c:\arduino\hardware\tools\avr\avr\include\;c:\arduino\hardware\tools\avr\avr\include\avr\;c:\arduino\hardware\tools\avr\avr\;c:\arduino\hardware\tools\avr\lib\gcc\avr\4.3.2\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -68,11 +65,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="DownloadArea.ino" />
-    <None Include="RayCasting.ino">
+    <None Include="DownloadArea.ino">
       <FileType>CppCode</FileType>
     </None>
-    <None Include="ReadArea.ino">
+    <None Include="raycasting.ino">
+      <FileType>CppCode</FileType>
+    </None>
+    <None Include="readArea.ino">
       <FileType>CppCode</FileType>
     </None>
     <None Include="Watch_Project.ino">
@@ -83,13 +82,12 @@
     <ClInclude Include="DownloadArea.h">
       <FileType>CppCode</FileType>
     </ClInclude>
-    <ClInclude Include="RayCasting.h">
+    <ClInclude Include="raycasting.h">
       <FileType>CppCode</FileType>
     </ClInclude>
-    <ClInclude Include="ReadArea.h">
+    <ClInclude Include="readArea.h">
       <FileType>CppCode</FileType>
     </ClInclude>
-    <ClInclude Include="Visual Micro\.Watch_Project.vsarduino.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

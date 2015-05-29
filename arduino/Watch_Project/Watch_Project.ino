@@ -1,16 +1,23 @@
+#include <Adafruit_FONA.h>
 #include <SoftwareSerial.h>
 #include "Adafruit_NeoPixel.h"
 #include "raycasting.h"
 #include "readArea.h"
 #include <Adafruit_GPS.h>
-
+#define FONA_RST 6
+#define GPRSAPN "telenor.dk"
+#define gprsrx 9
+#define gprstx 10
+#define deviceID "1" //Device ID for getting safe area
 
 //Setup the GPS,Bluetooth, and GPRS ports
-//GPRS Module uses pin 0 for TX, 1 for RX, 2 for OnModule function
-//Connect Ard pin D12 for RX, D6 for TX, D9 for OnModules
+//Connect Ard pin D9 for RX, D10 for TX D6 for RST
+
 Adafruit_GPS GPS(&Serial1);
 SoftwareSerial bluetooth(0,10); //RX,TX
-SoftwareSerial gprs(12, 6);
+SoftwareSerial gprs(gprsrx, gprstx);
+Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
+
 int onModulePin = 12, aux;
 int led = 7;
 bool debug = true;
@@ -20,13 +27,13 @@ void setup()
 {
 	pinMode(led, OUTPUT);
 	Serial.begin(9600);
-	GPS.begin(9600);
-	bluetooth.begin(9600);
+	//bluetooth.begin(9600);
 
 	// #####################
 	// # Set up GPS Module #
 	// #####################
 	// Turn on RMC (recommended minimum) and GGA (fix data) including altitude
+	GPS.begin(9600);
 	GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
 	// Set the update rate to 1 Hz
 	GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);
@@ -38,15 +45,13 @@ void setup()
 	// ######################
 	// # Set up GPRS Module #
 	// ######################
-	//Initiate with pin code
-	sendATcommand("AT+CPIN=****", "OK", 2000);
-	while ((sendATcommand("AT+CREG?", "+CREG: 0,1", 500) ||
-		sendATcommand("AT+CREG?", "+CREG: 0,5", 500)) == 0);
-	// sets APN, user name and password
-	sendATcommand("AT+CGSOCKCONT=1,\"IP\",\"apn\"", "OK", 2000);
-	sendATcommand("AT+CSOCKAUTH=1,1,\"user_name\",\"password\"", "OK", 2000);
+	gprs.begin(9600);
+	// See if the FONA is responding
+	fona.begin(gprs);
+	fona.setGPRSNetworkSettings(F(GPRSAPN));
+	fona.enableGPRS(true);
 	//@TODO: Get designated area
-
+	
 }
 
 //@TODO: Get polygon from web.

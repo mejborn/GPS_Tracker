@@ -15,30 +15,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DownloadArea.ino">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="RayCasting.ino">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="ReadArea.ino">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="Watch_Project.ino">
-      <Filter>Source Files</Filter>
-    </None>
+    <None Include="Watch_Project.ino" />
+    <None Include="DownloadArea.ino" />
+    <None Include="raycasting.ino" />
+    <None Include="readArea.ino" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Visual Micro\.Watch_Project.vsarduino.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DownloadArea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RayCasting.h">
+    <ClInclude Include="raycasting.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ReadArea.h">
+    <ClInclude Include="readArea.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
