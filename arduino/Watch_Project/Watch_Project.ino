@@ -62,9 +62,7 @@ polygon_t allowedAreap;
 boolean hasAllowedArea = false;
 
 char recievedChars[64];
-float latitude, longitude;
 vec recievedVectors[64];
-boolean newData = false, readSerial = false, hasLat = false;
 int numRecievedVectors = 0;
 
 void loop()
@@ -75,7 +73,7 @@ void loop()
 	//@TODO: BUG! Does not catch exeptions when there's a $ in the middle of a vector.
 
 	//if (!hasAllowedArea){
-		readArea();
+	//	readArea();
 	//}
 
 
