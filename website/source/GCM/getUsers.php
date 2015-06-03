@@ -90,11 +90,22 @@
 </head>
 <body>
 <?php
-include_once 'db_functions.php';
-$db = new DB_Functions();
-$users = $db->getAllUsers();
+
+require("common.php");
+
+$query = "
+          SELECT *
+          FROM gcm_users
+          ";
+
+$stmt = $db->prepare($query);
+$stmt->execute();
+$users = $stmt->fetchAll();
+
 if ($users != false)
-    $no_of_users = mysql_num_rows($users);
+    $no_of_users = $stmt->rowCount();
+
+    //$no_of_users = mysqli_num_rows($users);
 else
     $no_of_users = 0;
 ?>
@@ -106,7 +117,7 @@ else
         if ($no_of_users > 0) {
             ?>
             <?php
-            while ($row = mysql_fetch_array($users)) {
+            foreach ($users as $row) {
                 ?>
                 <li>
                     <form id="<?php echo $row["id"] ?>" name="" method="post" onsubmit="return sendPushNotification('<?php echo $row["id"] ?>')">

@@ -33,7 +33,7 @@ public class ConnectionManager extends Thread {
             }
         };
 
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        /*mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         ConnectThread mConnectThread;
         this.map = map;
         Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
@@ -48,14 +48,14 @@ public class ConnectionManager extends Thread {
                     mConnectThread.start();
                 }
             }
-        }
+        }*/
     }
 
-    public void setBluetoothSocket(BluetoothSocket socket){
+    /*public void setBluetoothSocket(BluetoothSocket socket){
         this.bluetoothSocket = socket;
         this.mWorkerThread = new WorkerThread(socket,this);
         mWorkerThread.start();
-    }
+    }*/
 
     public void setMapPointer(double latitude, double longitude){
         map.setLocation(latitude,longitude);
