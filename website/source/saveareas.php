@@ -12,7 +12,7 @@ require("common.php");
 if(!empty($_POST)) {
     if(!empty($_POST['koordinater'])) {
         if(empty($_POST['ID'])) {
-            header('Location: getUsers.php');
+            header('Location: index.php');
         } else {
             $query = "
                     UPDATE IDs
@@ -33,7 +33,7 @@ if(!empty($_POST)) {
             }
         }
     } else {
-        header('Location: getUsers.php');
+        header('Location: index.php');
     }
 }
 

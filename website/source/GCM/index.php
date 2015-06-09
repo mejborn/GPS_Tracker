@@ -9,8 +9,8 @@
 
         });
         function sendPushNotification(id){
-            var data = $('form#'+id).serialize();
-            $('form#'+id).unbind('submit');
+            var data = $('#'+id).serialize();
+            $('#'+id).unbind('submit');
             $.ajax({
                 url: "send_message.php",
                 type: 'GET',
@@ -27,6 +27,39 @@
             });
             return false;
         }
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+        });
+        function sendCoordinates(id) {
+            var data = $('#'+id).serialize();
+            $('#'+id).unbind('submit');
+            /*
+            var lat = $('.latMessage').val();
+            var lng = $('.lngMessage').val();
+            var regID = $('.regiId').val();
+            var query = "regId="+regID+"&lat="+lat+"&lng="+lng;
+            */
+
+            $.ajax({
+                url: "send_latLng.php",
+                type: 'GET',
+                data: data,
+                beforeSend: function() {
+
+                },
+                success: function(data, textStatus, xhr) {
+                    $('.latMessage').val("");
+                    $('.lngMessage').val("");
+                },
+                error: function(xhr, textStatus, errorThrown) {
+
+                }
+            });
+            return false;
+        }
+
     </script>
     <style type="text/css">
         .container{
@@ -128,6 +161,20 @@ else
                         <div class="send_container">
                             <textarea rows="3" name="message" cols="25" class="txt_message" placeholder="Type message here"></textarea>
                             <input type="hidden" name="regId" value="<?php echo $row["gcm_regid"] ?>"/>
+                            <input type="submit" class="send_btn" value="Send" onclick=""/>
+                        </div>
+                    </form>
+                </li>
+                <li>
+                    <form id="<?php echo $row["id"] . "latLng" ?>" name="" method="post" onsubmit="return sendCoordinates('<?php echo $row["id"] . "latLng" ?>')">
+                        <label>Name: </label> <span><?php echo $row["name"] ?></span>
+                        <div class="clear"></div>
+                        <label>Email:</label> <span><?php echo $row["email"] ?></span>
+                        <div class="clear"></div>
+                        <div class="send_container">
+                            <textarea rows="1" name="lat" cols="25" class="latMessage" placeholder="Lat Coordinate"></textarea>
+                            <textarea rows="1" name="lng" cols="25" class="lngMessage" placeholder="Lng Coordinate"></textarea>
+                            <input type="hidden" name="regId" class="regiId" value="<?php echo $row["gcm_regid"] ?>"/>
                             <input type="submit" class="send_btn" value="Send" onclick=""/>
                         </div>
                     </form>

@@ -17,14 +17,13 @@ if (isset($_POST["name"]) && isset($_POST["email"]) && isset($_POST["regId"])) {
     // Store user details in db
 
     $query = "
-            INSERT
-            INTO gcm_users(name, email, gcm_regid, created_at)
-            VALUES(:name, :email, :gcm_regid, NOW())
+            UPDATE gcm_users
+            SET gcm_regid=:gcm_regid
+            WHERE name=:name
             ";
 
     $query_params = array(
         ':name' => $name,
-        ':email' => $email,
         ':gcm_regid' => $gcm_regid
     );
 
