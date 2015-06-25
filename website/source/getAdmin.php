@@ -1,10 +1,5 @@
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: Lasse
- * Date: 16/04/15
- * Time: 11:37
- */
+
 require("common.php");
 
 if(!empty($_GET['ID'])) {

@@ -19,7 +19,6 @@
 <div id="map-canvas"></div>
 <div id="buttons">
     <button id="deleteShape">Slet område</button>
-    <button id="downloadPoints">Hent område</button>
     <form action="saveareas.php" method="post">
         Indtast ID: <input type="text" name="ID">
         <input type="submit" value="Gem område"/>

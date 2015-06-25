@@ -1,46 +1,29 @@
 package it.mejborn.tracker;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.util.Log;
 import android.widget.Toast;
 
-import it.mejborn.tracker.ServerUtilities;
-import android.content.Context;
-
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import org.apache.http.impl.client.DefaultHttpClient;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import static it.mejborn.tracker.ConnectionManager.*;
 
 
 public class MapsActivity extends FragmentActivity {
 
-    private Marker destinationMarker;
     private static GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    private ConnectionManager connectionManager = null;
     private GCMClientManager pushClientManager;
     String PROJECT_NUMBER = "1059651119431";
     String registrationID = "";
@@ -55,7 +38,6 @@ public class MapsActivity extends FragmentActivity {
                 .SCREEN_ORIENTATION_PORTRAIT);
 
         setUpMapIfNeeded();
-        //setUpConnectionManagerIfNeeded();
         setUPGCMClientManagerIfNeeded();
         sendGCMIDToServer();
     }
@@ -72,28 +54,32 @@ public class MapsActivity extends FragmentActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
 
-            String lat = intent.getExtras().getString("lat");
-            String lng = intent.getExtras().getString("lng");
+            int msgType = Integer.parseInt(intent.getExtras().getString("msgType"));
 
-            Log.i("GCM", "Received lat: " + lat);
-            Log.i("GCM", "Received lng: " + lng);
+            if(msgType == 1) {
+                String lat = intent.getExtras().getString("lat");
 
-            double latDbl = Double.parseDouble(lat);
-            double lngDbl = Double.parseDouble(lng);
-
-            setLocation(latDbl, lngDbl);
+                String lng = intent.getExtras().getString("lng");
 
 
+                Log.i("GCM", "Received lat: " + lat);
+                Log.i("GCM", "Received lng: " + lng);
 
-            // Explicitly specify that GcmMessageHandler will handle the intent.
-            //ComponentName comp = new ComponentName(context.getPackageName(),
-            //        GcmMessageHandler.class.getName());
+                double latDbl = Double.parseDouble(lat);
+                double lngDbl = Double.parseDouble(lng);
 
-            // Start the service, keeping the device awake while it is executing.
-            //startWakefulService(context, (intent.setComponent(comp)));
-            // Return successful
-            //setResultCode(Activity.RESULT_OK);
+                setLocation(latDbl, lngDbl);
+
+                setResultCode(Activity.RESULT_OK);
+            }
+
+            if(msgType == 2) {
+                ComponentName comp = new ComponentName(context.getPackageName(),
+                        GcmMessageHandler.class.getName());
+                startWakefulService(context, (intent.setComponent(comp)));
+            }
         }
+
     }
 
     private void setUpMapIfNeeded() {
@@ -109,12 +95,6 @@ public class MapsActivity extends FragmentActivity {
         }
     }
 
-    private void setUpConnectionManagerIfNeeded(){
-        if(connectionManager == null){
-            connectionManager = new ConnectionManager(this);
-        }
-    }
-
     private void setUpMap() {
         mMap.setMyLocationEnabled(true);
     }
@@ -122,7 +102,7 @@ public class MapsActivity extends FragmentActivity {
     private static void changeMap(LatLng pos){
         //@TODO:Remove last marker!
         mMap.addMarker(new MarkerOptions().position(pos));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos,15));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
     }
 
     public static void setLocation(double latitude, double longitude){
@@ -137,7 +117,7 @@ public class MapsActivity extends FragmentActivity {
             pushClientManager.registerIfNeeded(new GCMClientManager.RegistrationCompletedHandler() {
                 @Override
                 public void onSuccess(String registrationId, boolean isNewRegistration) {
-                    //Toast.makeText(MapsActivity.this, registrationId, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MapsActivity.this, registrationId, Toast.LENGTH_SHORT).show();
                     Log.v("Reg ID:", registrationId);
                     registrationID = registrationId;
                 }

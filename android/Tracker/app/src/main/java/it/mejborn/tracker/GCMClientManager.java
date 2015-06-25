@@ -36,7 +36,7 @@ public class GCMClientManager {
         }
     }
 
-    public GCMClientManager(Activity activity, String projectNumber) {
+    public GCMClientManager(MapsActivity activity, String projectNumber) {
         this.activity = activity;
         this.projectNumber = projectNumber;
         this.gcm = GoogleCloudMessaging.getInstance(activity);

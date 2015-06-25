@@ -1,31 +1,46 @@
 
 <?php
-/*if (isset($_GET["lat"]) && isset($_GET["lng"])) {
+
+require("common.php");
+
+if (isset($_GET["ID"]) && isset($_GET["lat"]) && isset($_GET["lng"]) && isset($_GET["msgType"])) {
+    $ID = $_GET["ID"];
     $lat = $_GET["lat"];
     $lng = $_GET["lng"];
+    $msgType = $_GET["msgType"];
 
-    include_once './GCM.php';
+    $query = "
+            SELECT gcm_regid
+            FROM gcm_users
+            WHERE id=:id
+            ";
 
-    $gcm = new GCM();
-    $regID = 'APA91bF_9N-yr89HvwYCclHoEtjJZHv-Qm0O1eDOMe_HDr2dMxqwCuxIzC5z45SBznE9t8b3r4qp5uHE6JCnnNi6jIMXKJyuQoH-uh5ZjRxsivVDieQ0UCEezgjC07W-CAx1py441XVG-ojGcN1EUdoroD76Cr6UIg';
-    //$message = array("price" => $message);
+    $query_params = array(
+        ':id' => $ID,
+    );
 
-    $gcm->send_coordinates($regID, $lat, $lng);
-}*/
+    try {
+        $stmt = $db->prepare($query);
+        $result = $stmt->execute($query_params);
+    } catch (PDOException $ex) {
+        die("Failed to run query: " . $ex->getMessage());
+    }
 
+    $row = $stmt->fetch();
 
-if (isset($_GET["regId"]) && isset($_GET["lat"]) && isset($_GET["lng"])) {
-    $regId = $_GET["regId"];
-    $lat = $_GET["lat"];
-    $lng = $_GET["lng"];
+    if($row) {
+        $regId = $row['gcm_regid'];
 
-    include_once './GCM.php';
+        include_once './GCM.php';
 
-    $gcm = new GCM();
+        $gcm = new GCM();
 
-    $registration_ids = array($regId);
-    //$message = array("price" => $message);
+        $registration_ids = array($regId);
 
-    $gcm->send_coordinates($registration_ids, $lat, $lng);
+        $gcm->send_coordinates($registration_ids, $lat, $lng, $msgType);
+    }
+} else {
+    print($_GET["ID"]);
+    print($_GET["lat"]);
+    print($_GET["lng"]);
 }
-?>

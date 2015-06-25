@@ -15,31 +15,6 @@ var masterPolygon;
 var selectedShape;
 var coordinatesForDownload;
 
-/*
-    Download af koordinater
- */
-var downloadFile = document.getElementById("downloadPoints");
-downloadFile.addEventListener('click', downloadTxtFile);
-
-function downloadTxtFile() {
-    if(masterPolygon == null) {
-        window.alert("Intet at gemme!");
-    } else {
-        function downloadInnerHtml(filename, mimeType) {
-            var link = document.createElement('a');
-            mimeType = mimeType || 'text/plain';
-            link.setAttribute('download', filename);
-            link.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(coordinatesForDownload));
-            link.click();
-        }
-
-        var fileName = 'koordinater.txt';
-        downloadInnerHtml(fileName, 'text/plain');
-        return false;
-    }
-}
-
-
 function printCoordinates() {
     if(masterPolygon == null) {
         document.getElementById('coords').innerHTML = "Intet område endnu.";
@@ -158,7 +133,7 @@ function showMap(position){
             masterPolygon = event.overlay;
 
             /*
-            tilføj listeners til overordnet polygon.
+                Tilføj listeners til overordnet polygon.
              */
             addListeners();
 

@@ -1,12 +1,5 @@
 <?php
 
-/*
-    CREATE TABLE koordinater(
-    `id` int(11) NOT NULL AUTO_INCREMENT,
-    `koordinater` varchar(65535) NOT NULL,
-    PRIMARY KEY (`id`)
-    )ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1;
-*/
 require("common.php");
 
 if(!empty($_POST)) {

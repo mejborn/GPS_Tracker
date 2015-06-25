@@ -37,7 +37,4 @@ if (isset($_POST["ID"]) && isset($_POST["regID"])) {
 } else {
     print($_POST["ID"]);
     print($_POST["regID"]);
-
-    // user details missing
 }
-?>
