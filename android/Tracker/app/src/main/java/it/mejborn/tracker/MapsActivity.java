@@ -69,15 +69,12 @@ public class MapsActivity extends FragmentActivity {
                 double lngDbl = Double.parseDouble(lng);
 
                 setLocation(latDbl, lngDbl);
-
-                setResultCode(Activity.RESULT_OK);
-            }
-
-            if(msgType == 2) {
+            } else if(msgType == 2) {
                 ComponentName comp = new ComponentName(context.getPackageName(),
                         GcmMessageHandler.class.getName());
                 startWakefulService(context, (intent.setComponent(comp)));
             }
+            setResultCode(Activity.RESULT_OK);
         }
 
     }
