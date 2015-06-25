@@ -5,7 +5,7 @@
 #include "readArea.h"
 #include <Adafruit_GPS.h>
 #define FONA_RST 6
-#define GPRSAPN "telenor.dk"
+#define GPRSAPN "internet"
 #define gprsrx 9
 #define gprstx 10
 #define deviceID "1" //Device ID for getting safe area
@@ -15,18 +15,24 @@
 
 Adafruit_GPS GPS(&Serial1);
 SoftwareSerial bluetooth(0,10); //RX,TX
-SoftwareSerial gprs(gprsrx, gprstx);
+SoftwareSerial gprs(gprstx, gprsrx);
 Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
 
 int onModulePin = 12, aux;
 int led = 7;
 bool debug = true;
+bool hasRecievArea = false;
+bool simIsUnlocked = false;
 void sendData(vec pos);
+bool hasBeenOutside = false;
+bool hasEnabledGPRS = false;
 
 void setup()
 {
+	
 	pinMode(led, OUTPUT);
 	Serial.begin(9600);
+	Serial.println("Starting arduino");
 	//bluetooth.begin(9600);
 
 	// #####################
@@ -47,11 +53,20 @@ void setup()
 	// ######################
 	gprs.begin(9600);
 	// See if the FONA is responding
-	fona.begin(gprs);
-	fona.setGPRSNetworkSettings(F(GPRSAPN));
-	fona.enableGPRS(true);
-	//@TODO: Get designated area
+	if(!fona.begin(gprs)){
+		Serial.println(F("Couldn't find FONA"));
+	}
+	else{
+		Serial.println(F("FONA is OK"));
+	}
 	
+
+	// Print SIM card IMEI number.
+	char imei[15] = { 0 }; // MUST use a 16 character buffer for IMEI!
+	uint8_t imeiLen = fona.getIMEI(imei);
+	if (imeiLen > 0) {
+		Serial.print("SIM card IMEI: "); Serial.println(imei);
+	}
 }
 
 //@TODO: Get polygon from web.
@@ -59,7 +74,7 @@ uint32_t timer = millis();
 
 vec *allowedArea;
 polygon_t allowedAreap;
-boolean hasAllowedArea = false;
+bool hasAllowedArea = false;
 
 char recievedChars[64];
 vec recievedVectors[64];
@@ -68,22 +83,7 @@ int numRecievedVectors = 0;
 void loop()
 {
 	float fLat, fLon;
-	//@TODO: Get polygon from web.
 	//@TODO: Reads allowed area. Should check periodically if there's changes.
-	//@TODO: BUG! Does not catch exeptions when there's a $ in the middle of a vector.
-
-	//if (!hasAllowedArea){
-	//	readArea();
-	//}
-
-
-	//Get current position by GPS fix                    
-	char c = GPS.read();
-	if (GPS.newNMEAreceived()) {
-		//Serial.println(GPS.lastNMEA());
-		if (!GPS.parse(GPS.lastNMEA()))
-			return;
-	}
 
 	// if millis() or timer wraps around, we'll just reset it
 	if (timer > millis())  timer = millis();
@@ -91,47 +91,79 @@ void loop()
 	// approximately every 2 seconds check if current position is within the allowed area
 	// @TODO: Initially wait a little more than 2 seconds to do the check, and if outside make the timer smaller.
 	if (millis() - timer > 2000) {
-		timer = millis(); // reset the timer
-		//Send GPS Debuggin info to Serial
-		if (debug){
-			Serial.print("\nTime: ");
-			Serial.print(GPS.hour, DEC); Serial.print(':');
-			Serial.print(GPS.minute, DEC); Serial.print(':');
-			Serial.print(GPS.seconds, DEC); Serial.print('.');
-			Serial.println(GPS.milliseconds);
-			Serial.print("Date: ");
-			Serial.print(GPS.day, DEC); Serial.print('/');
-			Serial.print(GPS.month, DEC); Serial.print("/20");
-			Serial.println(GPS.year, DEC);
-			Serial.print("Fix: "); Serial.print((int)GPS.fix);
-			Serial.print(" quality: "); Serial.println((int)GPS.fixquality);
+		if (!simIsUnlocked){
+			fona.begin(gprs);
+			if (!fona.unlockSIM("2807")) {
+				Serial.println(F("Sim unlock Failed"));
+			}
+			else {
+				simIsUnlocked = true;
+				Serial.println(F("Sim unlock OK!"));
+			}
 		}
-
-		if (GPS.fix) {
-			//GPS Has been fixed. Check position, and send to phone if needed
-			//@TODO: The inside check should take into account the quality of the GPS signal
-			//@TODO: Low signal warning to phone?
-			fLat = (decimalDegrees(GPS.latitude, GPS.lat));
-			fLon = (decimalDegrees(GPS.longitude, GPS.lon));
-			vec pos = { fLat, fLon };
-			if (inside(pos, &allowedAreap, 1e-01) == -1){
-				//@TODO: Send warning to phone, and start pushing data
-				//Pushing data trough bluetooth done!
-				digitalWrite(led, HIGH);
-				sendData(pos);
+		if (!hasRecievArea && simIsUnlocked && (fona.getNetworkStatus() == 1 || fona.getNetworkStatus() == 5)){
+			//Try to download the allowed area
+			fona.setGPRSNetworkSettings(F(GPRSAPN));
+			if (!hasEnabledGPRS){
+				if (fona.enableGPRS(true)){
+					Serial.println("GPRS Enabled. Trying to download area");
+					hasEnabledGPRS = true;
+				}
 			}
-			else{
-				//@TODO: If previously outside designated area, send "safe" notification to phone
-				//			Keep pushing data untill safe notification has been sent
-				//Else do nothing
-				digitalWrite(led, LOW);
+			if (hasEnabledGPRS){
+				hasRecievArea = downloadArea();
 			}
+			
 		}
 		else{
-			//@TODO
-			//Check how long it's been since I've had a gps fix.
-			//If timer > 5 Minutes. Send warning to phone!
+			Serial.println("Failed to enable GPRS");
+			Serial.print("Sim card unlocked: ");
+			Serial.println (simIsUnlocked ? "Yes" : "No");
+			Serial.print("Network status: ");
+			uint8_t n = fona.getNetworkStatus();
+			if (n == 0) Serial.println(F("Not registered"));
+			if (n == 1) Serial.println(F("Registered (home)"));
+			if (n == 2) Serial.println(F("Not registered (searching)"));
+			if (n == 3) Serial.println(F("Denied"));
+			if (n == 4) Serial.println(F("Unknown"));
+			if (n == 5) Serial.println(F("Registered roaming"));
+			Serial.println();
 		}
+		if (hasRecievArea){
+			//Get current position by GPS fix                    
+			char c = GPS.read();
+			if (GPS.newNMEAreceived()) {
+				//Serial.println(GPS.lastNMEA());
+				if (!GPS.parse(GPS.lastNMEA()))
+					return;
+			}
+
+			if (GPS.fix) {
+				//GPS Has been fixed. Check position, and send to phone if needed
+				//@TODO: The inside check should take into account the quality of the GPS signal
+				//@TODO: Low signal warning to phone?
+				fLat = (decimalDegrees(GPS.latitude, GPS.lat));
+				fLon = (decimalDegrees(GPS.longitude, GPS.lon));
+				vec pos = { fLat, fLon };
+				if (inside(pos, &allowedAreap, 1e-01) == -1){
+					//@TODO: Send warning to phone, and start pushing data
+					//Pushing data trough bluetooth done!
+					digitalWrite(led, HIGH);
+					postData(fLat, fLon);
+				}
+				else{
+					//@TODO: If previously outside designated area, send "safe" notification to phone
+					//			Keep pushing data untill safe notification has been sent
+					//Else do nothing
+					digitalWrite(led, LOW);
+				}
+			}
+			else{
+				//@TODO
+				//Check how long it's been since I've had a gps fix.
+				//If timer > 5 Minutes. Send warning to phone!
+			}
+		}timer = millis(); // reset the timer
 	}
 }
 

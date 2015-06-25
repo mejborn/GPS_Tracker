@@ -19,9 +19,13 @@
     <None Include="DownloadArea.ino" />
     <None Include="raycasting.ino" />
     <None Include="readArea.ino" />
+    <None Include="PostData.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DownloadArea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Watch_Project.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="raycasting.h">
