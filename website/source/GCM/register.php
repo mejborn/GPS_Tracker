@@ -10,20 +10,19 @@ error_reporting(E_ALL);
  * Registering a user device
  * Store reg id in users table
  */
-if (isset($_POST["name"]) && isset($_POST["email"]) && isset($_POST["regId"])) {
-    $name = $_POST["name"];
-    $email = $_POST["email"];
-    $gcm_regid = $_POST["regId"]; // GCM Registration ID
+if (isset($_POST["ID"]) && isset($_POST["regID"])) {
+    $ID = $_POST["ID"];
+    $gcm_regid = $_POST["regID"]; // GCM Registration ID
     // Store user details in db
 
     $query = "
             UPDATE gcm_users
             SET gcm_regid=:gcm_regid
-            WHERE name=:name
+            WHERE id=:id
             ";
 
     $query_params = array(
-        ':name' => $name,
+        ':id' => $ID,
         ':gcm_regid' => $gcm_regid
     );
 
@@ -36,9 +35,8 @@ if (isset($_POST["name"]) && isset($_POST["email"]) && isset($_POST["regId"])) {
     }
 
 } else {
-    print($_GET["name"]);
-    print($_GET["email"]);
-    print($_GET["regId"]);
+    print($_POST["ID"]);
+    print($_POST["regID"]);
 
     // user details missing
 }

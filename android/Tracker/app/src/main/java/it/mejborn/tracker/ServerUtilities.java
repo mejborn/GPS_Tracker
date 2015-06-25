@@ -36,13 +36,12 @@ public final class ServerUtilities {
      * Register this account/device pair within the server.
      *
      */
-    static void register(String name, String email, final String regId) {
-        Log.i(TAG, "registering device (regId = " + regId + ")");
+    static void register(String ID, final String regId) {
+        Log.i(TAG, "registering device (regID = " + regId + ")");
         String serverUrl = SERVER_URL;
         Map<String, String> params = new HashMap<String, String>();
-        params.put("regId", regId);
-        params.put("name", name);
-        params.put("email", email);
+        params.put("ID", ID);
+        params.put("regID", regId);
 
         long backoff = BACKOFF_MILLI_SECONDS + random.nextInt(1000);
         // Once GCM returns a registration id, we need to register on our server
@@ -73,28 +72,6 @@ public final class ServerUtilities {
                 // increase backoff exponentially
                 backoff *= 2;
             }
-        }
-    }
-
-    /**
-     * Unregister this account/device pair within the server.
-     */
-    static void unregister(final Context context, final String regId) {
-        Log.i(TAG, "unregistering device (regId = " + regId + ")");
-        String serverUrl = SERVER_URL + "/unregister";
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("regId", regId);
-        try {
-            post(serverUrl, params);
-            String message = context.getString(R.string.server_unregistered);
-        } catch (IOException e) {
-            // At this point the device is unregistered from GCM, but still
-            // registered in the server.
-            // We could try to unregister again, but it is not necessary:
-            // if the server tries to send a message to the device, it will get
-            // a "NotRegistered" error message and should unregister the device.
-            String message = context.getString(R.string.server_unregister_error,
-                    e.getMessage());
         }
     }
 

@@ -12,7 +12,7 @@
             var data = $('#'+id).serialize();
             $('#'+id).unbind('submit');
             $.ajax({
-                url: "send_message.php",
+                url: "sendMessage.php",
                 type: 'GET',
                 data: data,
                 beforeSend: function() {
@@ -43,7 +43,7 @@
             */
 
             $.ajax({
-                url: "send_latLng.php",
+                url: "sendLatLng.php",
                 type: 'GET',
                 data: data,
                 beforeSend: function() {

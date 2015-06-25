@@ -74,10 +74,9 @@ public class MapsActivity extends FragmentActivity {
 
             String lat = intent.getExtras().getString("lat");
             String lng = intent.getExtras().getString("lng");
-            //String body = intent.getExtras().getString("body");
+
             Log.i("GCM", "Received lat: " + lat);
             Log.i("GCM", "Received lng: " + lng);
-            //Log.i("GCM", "Received Message: " + body);
 
             double latDbl = Double.parseDouble(lat);
             double lngDbl = Double.parseDouble(lng);
@@ -93,7 +92,7 @@ public class MapsActivity extends FragmentActivity {
             // Start the service, keeping the device awake while it is executing.
             //startWakefulService(context, (intent.setComponent(comp)));
             // Return successful
-            setResultCode(Activity.RESULT_OK);
+            //setResultCode(Activity.RESULT_OK);
         }
     }
 
@@ -152,12 +151,11 @@ public class MapsActivity extends FragmentActivity {
     }
 
     private void sendGCMIDToServer() {
-        final String name = "Arduino Kursus";
-        final String email = "ArduinoTest@Arduino.dk";
+        final String ID ="1";
         new AsyncTask<String, Void, String>() {
             @Override
             protected String doInBackground(String... params) {
-                ServerUtilities.register(name, email, registrationID);
+                ServerUtilities.register(ID, registrationID);
                 return null;
             }
 
