@@ -55,7 +55,7 @@ public class MapsActivity extends FragmentActivity {
                 .SCREEN_ORIENTATION_PORTRAIT);
 
         setUpMapIfNeeded();
-        setUpConnectionManagerIfNeeded();
+        //setUpConnectionManagerIfNeeded();
         setUPGCMClientManagerIfNeeded();
         sendGCMIDToServer();
     }
@@ -137,7 +137,7 @@ public class MapsActivity extends FragmentActivity {
             pushClientManager.registerIfNeeded(new GCMClientManager.RegistrationCompletedHandler() {
                 @Override
                 public void onSuccess(String registrationId, boolean isNewRegistration) {
-                    Toast.makeText(MapsActivity.this, registrationId, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MapsActivity.this, registrationId, Toast.LENGTH_SHORT).show();
                     Log.v("Reg ID:", registrationId);
                     registrationID = registrationId;
                 }
