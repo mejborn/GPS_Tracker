@@ -9,10 +9,10 @@
 
         });
         function sendPushNotification(id){
-            var data = $('form#'+id).serialize();
-            $('form#'+id).unbind('submit');
+            var data = $('#'+id).serialize();
+            $('#'+id).unbind('submit');
             $.ajax({
-                url: "send_message.php",
+                url: "sendMessage.php",
                 type: 'GET',
                 data: data,
                 beforeSend: function() {
@@ -27,6 +27,39 @@
             });
             return false;
         }
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+        });
+        function sendCoordinates(id) {
+            var data = $('#'+id).serialize();
+            $('#'+id).unbind('submit');
+            /*
+            var lat = $('.latMessage').val();
+            var lng = $('.lngMessage').val();
+            var regID = $('.regiId').val();
+            var query = "regId="+regID+"&lat="+lat+"&lng="+lng;
+            */
+
+            $.ajax({
+                url: "sendLatLng.php",
+                type: 'GET',
+                data: data,
+                beforeSend: function() {
+
+                },
+                success: function(data, textStatus, xhr) {
+                    $('.latMessage').val("");
+                    $('.lngMessage').val("");
+                },
+                error: function(xhr, textStatus, errorThrown) {
+
+                }
+            });
+            return false;
+        }
+
     </script>
     <style type="text/css">
         .container{
@@ -90,11 +123,22 @@
 </head>
 <body>
 <?php
-include_once 'db_functions.php';
-$db = new DB_Functions();
-$users = $db->getAllUsers();
+
+require("common.php");
+
+$query = "
+          SELECT *
+          FROM gcm_users
+          ";
+
+$stmt = $db->prepare($query);
+$stmt->execute();
+$users = $stmt->fetchAll();
+
 if ($users != false)
-    $no_of_users = mysql_num_rows($users);
+    $no_of_users = $stmt->rowCount();
+
+    //$no_of_users = mysqli_num_rows($users);
 else
     $no_of_users = 0;
 ?>
@@ -106,7 +150,7 @@ else
         if ($no_of_users > 0) {
             ?>
             <?php
-            while ($row = mysql_fetch_array($users)) {
+            foreach ($users as $row) {
                 ?>
                 <li>
                     <form id="<?php echo $row["id"] ?>" name="" method="post" onsubmit="return sendPushNotification('<?php echo $row["id"] ?>')">
@@ -117,6 +161,20 @@ else
                         <div class="send_container">
                             <textarea rows="3" name="message" cols="25" class="txt_message" placeholder="Type message here"></textarea>
                             <input type="hidden" name="regId" value="<?php echo $row["gcm_regid"] ?>"/>
+                            <input type="submit" class="send_btn" value="Send" onclick=""/>
+                        </div>
+                    </form>
+                </li>
+                <li>
+                    <form id="<?php echo $row["id"] . "latLng" ?>" name="" method="post" onsubmit="return sendCoordinates('<?php echo $row["id"] . "latLng" ?>')">
+                        <label>Name: </label> <span><?php echo $row["name"] ?></span>
+                        <div class="clear"></div>
+                        <label>Email:</label> <span><?php echo $row["email"] ?></span>
+                        <div class="clear"></div>
+                        <div class="send_container">
+                            <textarea rows="1" name="lat" cols="25" class="latMessage" placeholder="Lat Coordinate"></textarea>
+                            <textarea rows="1" name="lng" cols="25" class="lngMessage" placeholder="Lng Coordinate"></textarea>
+                            <input type="hidden" name="regId" class="regiId" value="<?php echo $row["gcm_regid"] ?>"/>
                             <input type="submit" class="send_btn" value="Send" onclick=""/>
                         </div>
                     </form>

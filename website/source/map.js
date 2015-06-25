@@ -45,7 +45,7 @@ function printCoordinates() {
         document.getElementById('coords').innerHTML = "Intet område endnu.";
     } else {
         /*
-            .k er Latitude og .D er Longitude.
+            .A er Latitude og .F er Longitude.
             Longitude = <--->
 
                          ^
@@ -56,10 +56,10 @@ function printCoordinates() {
         coordinatesForDownload = "$";
         for (var i = 0; i < masterPolygon.getPath().length; i++) {
             if(i+1 != masterPolygon.getPath().length) {
-                coordinatesForDownload += masterPolygon.getPath().getAt(i).k + "," + masterPolygon.getPath().j[i].D + ",";
+                coordinatesForDownload += masterPolygon.getPath().getAt(i).A + "," + masterPolygon.getPath().j[i].F + ",";
                 coordinatesForHtml += masterPolygon.getPath().getAt(i) + "<br>";
             } else {
-                coordinatesForDownload += masterPolygon.getPath().getAt(i).k + "," + masterPolygon.getPath().j[i].D + "$";
+                coordinatesForDownload += masterPolygon.getPath().getAt(i).A + "," + masterPolygon.getPath().j[i].F + "$";
                 coordinatesForHtml += masterPolygon.getPath().getAt(i);
             }
         }

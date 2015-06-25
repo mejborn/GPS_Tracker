@@ -7,10 +7,10 @@ if (isset($_GET["regId"]) && isset($_GET["message"])) {
 
     $gcm = new GCM();
 
-    $registatoin_ids = array($regId);
-    $message = array("price" => $message);
+    $registration_ids = array($regId);
+    //$message = array("price" => $message);
 
-    $result = $gcm->send_notification($registatoin_ids, $message);
+    $result = $gcm->send_notification($registration_ids, $message);
 
     echo $result;
 }

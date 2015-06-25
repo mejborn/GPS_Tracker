@@ -13,13 +13,13 @@ import java.util.UUID;
  */
 public class ConnectThread extends Thread {
     private final BluetoothSocket mmSocket;
-    private final BluetoothAdapter mBluetoothAdapter;
+    //private final BluetoothAdapter mBluetoothAdapter;
     private final BluetoothDevice mmDevice;
     private final ConnectionManager mConnectionManager;
 
     public ConnectThread(BluetoothDevice device, ConnectionManager mConnectionManager) {
         this.mConnectionManager = mConnectionManager;
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        //mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         // Use a temporary object that is later assigned to mmSocket,
         // because mmSocket is final
         BluetoothSocket tmp = null;
@@ -35,14 +35,14 @@ public class ConnectThread extends Thread {
 
     public void run() {
         // Cancel discovery because it will slow down the connection
-        mBluetoothAdapter.cancelDiscovery();
+        //mBluetoothAdapter.cancelDiscovery();
 
         try {
             // Connect the device through the socket. This will block
             // until it succeeds or throws an exception
             mmSocket.connect();
             Log.v("Debug","Connected the socket");
-            mConnectionManager.setBluetoothSocket(mmSocket);
+            //mConnectionManager.setBluetoothSocket(mmSocket);
         } catch (IOException connectException) {
             // Unable to connect; close the socket and get out
             try {
