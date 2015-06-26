@@ -1,6 +1,5 @@
 #include <Adafruit_FONA.h>
 #include <SoftwareSerial.h>
-#include "Adafruit_NeoPixel.h"
 #include "raycasting.h"
 #include "readArea.h"
 #include <Adafruit_GPS.h>
@@ -14,7 +13,7 @@
 //Connect Ard pin D9 for RX, D10 for TX D6 for RST
 
 Adafruit_GPS GPS(&Serial1);
-SoftwareSerial bluetooth(0,10); //RX,TX
+//SoftwareSerial bluetooth(0,10); //RX,TX
 SoftwareSerial gprs(gprstx, gprsrx);
 Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
 
@@ -22,7 +21,7 @@ int onModulePin = 12, aux;
 int led = 7;
 bool debug = true;
 bool hasRecievArea = false;
-bool simIsUnlocked = false;
+bool simIsUnlocked = true;
 void sendData(vec pos);
 bool hasBeenOutside = false;
 bool hasEnabledGPRS = false;
@@ -31,7 +30,7 @@ void setup()
 {
 	
 	pinMode(led, OUTPUT);
-	Serial.begin(9600);
+	Serial.begin(115200);
 	Serial.println("Starting arduino");
 	//bluetooth.begin(9600);
 
@@ -51,7 +50,7 @@ void setup()
 	// ######################
 	// # Set up GPRS Module #
 	// ######################
-	gprs.begin(9600);
+	gprs.begin(4800);
 	// See if the FONA is responding
 	if(!fona.begin(gprs)){
 		Serial.println(F("Couldn't find FONA"));
@@ -59,7 +58,6 @@ void setup()
 	else{
 		Serial.println(F("FONA is OK"));
 	}
-	
 
 	// Print SIM card IMEI number.
 	char imei[15] = { 0 }; // MUST use a 16 character buffer for IMEI!
@@ -77,11 +75,17 @@ polygon_t allowedAreap;
 bool hasAllowedArea = false;
 
 char recievedChars[64];
-vec recievedVectors[64];
+vec recievedVectors[10];
 int numRecievedVectors = 0;
 
 void loop()
 {
+        char c = GPS.read();
+	if (GPS.newNMEAreceived()) {
+	  if (!GPS.parse(GPS.lastNMEA()))
+	      return;
+	}
+  
 	float fLat, fLon;
 	//@TODO: Reads allowed area. Should check periodically if there's changes.
 
@@ -90,37 +94,32 @@ void loop()
 
 	// approximately every 2 seconds check if current position is within the allowed area
 	// @TODO: Initially wait a little more than 2 seconds to do the check, and if outside make the timer smaller.
-	if (millis() - timer > 2000) {
-		if (!simIsUnlocked){
-			fona.begin(gprs);
-			if (!fona.unlockSIM("2807")) {
-				Serial.println(F("Sim unlock Failed"));
-			}
-			else {
-				simIsUnlocked = true;
-				Serial.println(F("Sim unlock OK!"));
-			}
-		}
-		if (!hasRecievArea && simIsUnlocked && (fona.getNetworkStatus() == 1 || fona.getNetworkStatus() == 5)){
-			//Try to download the allowed area
-			fona.setGPRSNetworkSettings(F(GPRSAPN));
-			if (!hasEnabledGPRS){
-				if (fona.enableGPRS(true)){
-					Serial.println("GPRS Enabled. Trying to download area");
-					hasEnabledGPRS = true;
-				}
-			}
-			if (hasEnabledGPRS){
+	if (millis() - timer > 5000) {  
+                uint8_t n = fona.getNetworkStatus();
+                if (hasEnabledGPRS && !hasRecievArea){
+                                Serial.println("Starting downloadArea()");
 				hasRecievArea = downloadArea();
 			}
-			
+		
+		if (!hasRecievArea && simIsUnlocked && (n == 1 || n == 5)){
+			//Try to download the allowed area
+
+                        fona.setGPRSNetworkSettings(F(GPRSAPN));
+			if (!hasEnabledGPRS){
+                          Serial.println("Enabling GPRS");
+                                fona.enableGPRS(false);
+				if (fona.enableGPRS(true)){
+					Serial.println("GPRS Enabled.");
+					hasEnabledGPRS = true;
+                                        delay(1000);
+				}else{
+                                  Serial.println("Failed to enable GPRS");
+                                }
+			}
+					
 		}
 		else{
-			Serial.println("Failed to enable GPRS");
-			Serial.print("Sim card unlocked: ");
-			Serial.println (simIsUnlocked ? "Yes" : "No");
 			Serial.print("Network status: ");
-			uint8_t n = fona.getNetworkStatus();
 			if (n == 0) Serial.println(F("Not registered"));
 			if (n == 1) Serial.println(F("Registered (home)"));
 			if (n == 2) Serial.println(F("Not registered (searching)"));
@@ -131,12 +130,6 @@ void loop()
 		}
 		if (hasRecievArea){
 			//Get current position by GPS fix                    
-			char c = GPS.read();
-			if (GPS.newNMEAreceived()) {
-				//Serial.println(GPS.lastNMEA());
-				if (!GPS.parse(GPS.lastNMEA()))
-					return;
-			}
 
 			if (GPS.fix) {
 				//GPS Has been fixed. Check position, and send to phone if needed
@@ -145,6 +138,11 @@ void loop()
 				fLat = (decimalDegrees(GPS.latitude, GPS.lat));
 				fLon = (decimalDegrees(GPS.longitude, GPS.lon));
 				vec pos = { fLat, fLon };
+                                Serial.println("Currently at");
+                                Serial.println(fLat,5);
+                                Serial.println(fLon,5);
+                                Serial.print("Quality: "); Serial.println((int)GPS.fixquality); 
+                                Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
 				if (inside(pos, &allowedAreap, 1e-01) == -1){
 					//@TODO: Send warning to phone, and start pushing data
 					//Pushing data trough bluetooth done!
@@ -153,12 +151,16 @@ void loop()
 				}
 				else{
 					//@TODO: If previously outside designated area, send "safe" notification to phone
-					//			Keep pushing data untill safe notification has been sent
+					//Keep pushing data untill safe notification has been sent
 					//Else do nothing
 					digitalWrite(led, LOW);
+                                        hasBeenOutside = false;
 				}
 			}
 			else{
+                Serial.println("Waiting for GPS fix");
+                Serial.print("Quality: "); Serial.println((int)GPS.fixquality); 
+                Serial.print("Satellites: "); Serial.println((int)GPS.satellites);
 				//@TODO
 				//Check how long it's been since I've had a gps fix.
 				//If timer > 5 Minutes. Send warning to phone!
@@ -180,6 +182,6 @@ float decimalDegrees(float nmeaCoord, char dir) {
 }
 
 void sendData(vec pos){
-	bluetooth.println(pos.x,10);
-	bluetooth.println(pos.y,10);
+	//bluetooth.println(pos.x,10);
+	//bluetooth.println(pos.y,10);
 }
