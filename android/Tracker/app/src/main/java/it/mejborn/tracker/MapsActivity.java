@@ -37,7 +37,7 @@ public class MapsActivity extends FragmentActivity {
         setRequestedOrientation(ActivityInfo
                 .SCREEN_ORIENTATION_PORTRAIT);
 
-        setUpMapIfNeeded();
+        setUpMap();
         setUPGCMClientManagerIfNeeded();
         sendGCMIDToServer();
     }
@@ -45,7 +45,7 @@ public class MapsActivity extends FragmentActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        setUpMapIfNeeded();
+        setUpMap();
     }
 
     public static class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
@@ -79,25 +79,13 @@ public class MapsActivity extends FragmentActivity {
 
     }
 
-    private void setUpMapIfNeeded() {
-        // Do a null check to confirm that we have not already instantiated the map.
-        if (mMap == null) {
-            // Try to obtain the map from the SupportMapFragment.
-            mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
-                    .getMap();
-            // Check if we were successful in obtaining the map.
-            if (mMap != null) {
-                setUpMap();
-            }
-        }
-    }
-
     private void setUpMap() {
+        mMap = ((SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map))
+                .getMap();
         mMap.setMyLocationEnabled(true);
     }
 
     private static void changeMap(LatLng pos){
-        //@TODO:Remove last marker!
         mMap.addMarker(new MarkerOptions().position(pos));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(pos, 15));
     }
